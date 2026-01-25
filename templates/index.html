@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildfire Detection System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Wildfire Detection System</h1>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="label">Status:</span>
+                    <span id="status" class="status-indicator">Monitoring</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Confidence:</span>
+                    <span id="confidence">0.00</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Fire Events:</span>
+                    <span id="fire-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="video-grid">
+                <div class="video-panel">
+                    <h2>RGB Camera</h2>
+                    <div class="video-container">
+                        <img id="rgb-feed" src="" alt="RGB Camera Feed">
+                        <div class="no-signal">No Signal</div>
+                    </div>
+                </div>
+
+                <div class="video-panel">
+                    <h2>Thermal Camera</h2>
+                    <div class="video-container">
+                        <img id="thermal-feed" src="" alt="Thermal Camera Feed">
+                        <div class="no-signal">No Signal</div>
+                    </div>
+                    <div class="temp-stats">
+                        <div class="temp-item">
+                            <span class="temp-label">Min:</span>
+                            <span id="temp-min" class="temp-value">--°C</span>
+                        </div>
+                        <div class="temp-item">
+                            <span class="temp-label">Avg:</span>
+                            <span id="temp-avg" class="temp-value">--°C</span>
+                        </div>
+                        <div class="temp-item">
+                            <span class="temp-label">Max:</span>
+                            <span id="temp-max" class="temp-value">--°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confidence-panel">
+                <h2>Detection Breakdown</h2>
+                <div class="confidence-bars">
+                    <div class="confidence-item">
+                        <span class="conf-label">Thermal:</span>
+                        <div class="progress-bar">
+                            <div id="thermal-bar" class="progress-fill"></div>
+                        </div>
+                        <span id="thermal-value" class="conf-value">0.00</span>
+                    </div>
+                    <div class="confidence-item">
+                        <span class="conf-label">RGB Fire:</span>
+                        <div class="progress-bar">
+                            <div id="fire-bar" class="progress-fill"></div>
+                        </div>
+                        <span id="fire-value" class="conf-value">0.00</span>
+                    </div>
+                    <div class="confidence-item">
+                        <span class="conf-label">RGB Smoke:</span>
+                        <div class="progress-bar">
+                            <div id="smoke-bar" class="progress-fill"></div>
+                        </div>
+                        <span id="smoke-value" class="conf-value">0.00</span>
+                    </div>
+                    <div class="confidence-item total">
+                        <span class="conf-label">Total:</span>
+                        <div class="progress-bar">
+                            <div id="total-bar" class="progress-fill"></div>
+                        </div>
+                        <span id="total-value" class="conf-value">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Last Update: <span id="last-update">Never</span></p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
