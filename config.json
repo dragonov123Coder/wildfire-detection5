@@ -1,0 +1,60 @@
+{
+  "client": {
+    "rgb_camera": {
+      "width": 640,
+      "height": 480,
+      "picamera2_framerate": 60.0,
+      "opencv_framerate": 45,
+      "warmup_time_seconds": 2
+    },
+    "thermal_camera": {
+      "i2c_frequency": 100000,
+      "refresh_rate_hz": 16
+    },
+    "network": {
+      "server_host": "192.168.1.165",
+
+      "server_port": 5555,
+      "retry_interval_seconds": 5
+    }
+  },
+  "server": {
+    "network": {
+      "port": 5555,
+      "host": "0.0.0.0",
+      "flask_port": 8080,
+      "flask_host": "0.0.0.0"
+    },
+    "thermal_processor": {
+      "min_temp_celsius": 15.0,
+      "max_temp_celsius": 40.0,
+      "fire_temp_threshold_celsius": 180.0,
+      "fire_area_threshold": 0.005,
+      "dead_pixel_threshold": -75.0,
+      "visualization_width": 640,
+      "visualization_height": 480
+    },
+    "rgb_processor": {
+      "model_path": "model.pt",
+      "fire_confidence_threshold": 0.5
+    },
+    "confidence_fusion": {
+      "thermal_weight": 0.5,
+      "rgb_fire_weight": 0.4,
+      "rgb_smoke_weight": 0.1,
+      "fire_detection_threshold": 0.4,
+      "thermal_alert_threshold": 0.8,
+      "rgb_fire_alert_threshold": 0.7,
+      "rgb_smoke_alert_threshold": 0.3
+    },
+    "image_saver": {
+      "rgb_directory": "captures/rgb",
+      "thermal_directory": "captures/thermal",
+      "periodic_save_interval_seconds": 5.0
+    },
+    "processing": {
+      "loop_rate_fps": 30,
+      "loop_sleep_seconds": 0.033
+    }
+  }
+}

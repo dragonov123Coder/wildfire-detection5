@@ -1,0 +1,584 @@
+2026-01-25 20:31:56,293 - __main__ - INFO - ThermalProcessor initialized - Temp range: 15.0-40.0°C, Fire threshold: 180.0°C, Area threshold: 0.005
+2026-01-25 20:31:56,383 - __main__ - INFO - Loaded YOLO model from model.pt
+2026-01-25 20:31:56,384 - __main__ - INFO - RGBProcessor initialized - Fire confidence threshold: 0.5
+2026-01-25 20:31:56,384 - __main__ - INFO - ConfidenceFusion initialized - Weights: Thermal=0.5, Fire=0.4, Smoke=0.1, Threshold=0.4
+2026-01-25 20:31:56,384 - __main__ - INFO - ImageSaver initialized - RGB dir: captures\rgb, Thermal dir: captures\thermal
+2026-01-25 20:31:56,386 - __main__ - INFO - ================================================================================
+2026-01-25 20:31:56,386 - __main__ - INFO - WILDFIRE DETECTION SERVER STARTING
+2026-01-25 20:31:56,387 - __main__ - INFO - ================================================================================
+2026-01-25 20:31:56,387 - __main__ - INFO - Listening on port 5555
+2026-01-25 20:31:56,387 - __main__ - INFO - Waiting for Raspberry Pi connection...
+2026-01-25 20:31:56,387 - __main__ - INFO - Starting main processing loop
+2026-01-25 20:31:56,388 - __main__ - INFO - Starting web server on http://0.0.0.0:8080
+2026-01-25 20:31:56,396 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.165:8080
+2026-01-25 20:31:56,396 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-01-25 20:32:01,784 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203201_782012.jpg
+2026-01-25 20:32:01,786 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.4_avg27.0_20260125_203201_782012.jpg
+2026-01-25 20:32:07,235 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203207_233660.jpg
+2026-01-25 20:32:07,236 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.1_avg26.8_20260125_203207_233660.jpg
+2026-01-25 20:32:12,637 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203212_635321.jpg
+2026-01-25 20:32:12,638 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.1_avg26.9_20260125_203212_635321.jpg
+2026-01-25 20:32:17,646 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203217_644175.jpg
+2026-01-25 20:32:17,648 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.6_avg27.1_20260125_203217_644175.jpg
+2026-01-25 20:32:22,687 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203222_685096.jpg
+2026-01-25 20:32:22,689 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.7_avg26.8_20260125_203222_685096.jpg
+2026-01-25 20:32:27,942 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203227_940010.jpg
+2026-01-25 20:32:27,943 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.7_avg27.0_20260125_203227_940010.jpg
+2026-01-25 20:32:32,245 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:32:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:32:33,219 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203233_215357.jpg
+2026-01-25 20:32:33,221 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.5_avg27.0_20260125_203233_215357.jpg
+2026-01-25 20:32:38,789 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203238_786611.jpg
+2026-01-25 20:32:38,791 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.7_avg26.8_20260125_203238_786611.jpg
+2026-01-25 20:32:43,977 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203243_974555.jpg
+2026-01-25 20:32:43,979 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.8_avg26.6_20260125_203243_974555.jpg
+2026-01-25 20:32:49,020 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203249_017471.jpg
+2026-01-25 20:32:49,023 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.6_avg26.8_20260125_203249_017471.jpg
+2026-01-25 20:32:54,285 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203254_282484.jpg
+2026-01-25 20:32:54,287 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.9_avg26.6_20260125_203254_282484.jpg
+2026-01-25 20:32:59,318 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203259_315595.jpg
+2026-01-25 20:32:59,320 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.9_avg26.8_20260125_203259_315595.jpg
+2026-01-25 20:33:04,563 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203304_560503.jpg
+2026-01-25 20:33:04,565 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.6_avg27.0_20260125_203304_560503.jpg
+2026-01-25 20:33:09,814 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203309_811145.jpg
+2026-01-25 20:33:09,816 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.9_avg26.9_20260125_203309_811145.jpg
+2026-01-25 20:33:14,916 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203314_913437.jpg
+2026-01-25 20:33:14,918 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.2_avg26.8_20260125_203314_913437.jpg
+2026-01-25 20:33:19,988 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203319_985252.jpg
+2026-01-25 20:33:19,990 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.1_avg26.8_20260125_203319_985252.jpg
+2026-01-25 20:33:25,294 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203325_290915.jpg
+2026-01-25 20:33:25,296 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.9_avg26.6_20260125_203325_290915.jpg
+2026-01-25 20:33:30,499 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203330_496692.jpg
+2026-01-25 20:33:30,502 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.0_avg26.9_20260125_203330_496692.jpg
+2026-01-25 20:33:31,960 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:35,875 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203335_872767.jpg
+2026-01-25 20:33:35,877 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.2_avg26.8_20260125_203335_872767.jpg
+2026-01-25 20:33:41,216 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203341_214074.jpg
+2026-01-25 20:33:41,219 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg26.9_20260125_203341_214074.jpg
+2026-01-25 20:33:46,513 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\fire_rgb_20260125_203346_511200.jpg
+2026-01-25 20:33:46,517 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\fire_thermal_min-273.1_max656.9_avg484.6_20260125_203346_511200.jpg
+2026-01-25 20:33:47,265 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203347_262507.jpg
+2026-01-25 20:33:47,268 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.5_avg26.8_20260125_203347_262507.jpg
+2026-01-25 20:33:50,085 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:50,339 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:50,403 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:50,666 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:50,716 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:50,985 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,036 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,313 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,354 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,628 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,676 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,947 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:51,992 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:52,264 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:52,320 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:52,348 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203352_346088.jpg
+2026-01-25 20:33:52,351 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.7_avg27.3_20260125_203352_346088.jpg
+2026-01-25 20:33:52,585 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:52,635 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:52,906 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:52,952 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:53,229 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:53,267 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:53,554 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:53,589 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:53,872 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:53,902 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:54,198 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:54,921 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:56,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:56,927 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:57,903 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203357_900151.jpg
+2026-01-25 20:33:57,905 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.8_avg26.6_20260125_203357_900151.jpg
+2026-01-25 20:33:58,234 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:33:58,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:33:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:00,233 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:00,925 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:02,238 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:02,921 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:03,232 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203403_228750.jpg
+2026-01-25 20:34:03,235 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg26.7_20260125_203403_228750.jpg
+2026-01-25 20:34:04,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:04,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:06,240 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:06,921 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:08,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:08,492 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203408_489276.jpg
+2026-01-25 20:34:08,494 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.8_avg26.9_20260125_203408_489276.jpg
+2026-01-25 20:34:08,916 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:10,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:10,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:12,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:12,924 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:13,827 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203413_824125.jpg
+2026-01-25 20:34:13,829 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.7_avg26.9_20260125_203413_824125.jpg
+2026-01-25 20:34:14,235 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:14,924 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:16,239 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:16,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:18,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:18,921 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:19,255 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203419_252765.jpg
+2026-01-25 20:34:19,257 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.4_avg26.4_20260125_203419_252765.jpg
+2026-01-25 20:34:20,238 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:20,923 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:22,232 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:22,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:24,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:24,488 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203424_485850.jpg
+2026-01-25 20:34:24,491 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.5_avg26.7_20260125_203424_485850.jpg
+2026-01-25 20:34:24,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:26,228 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:26,927 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:28,235 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:28,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:29,727 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203429_724330.jpg
+2026-01-25 20:34:29,729 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg27.1_20260125_203429_724330.jpg
+2026-01-25 20:34:30,224 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:30,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:32,238 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:32,921 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:34,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:34,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:34,983 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203434_980825.jpg
+2026-01-25 20:34:34,985 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.8_avg26.9_20260125_203434_980825.jpg
+2026-01-25 20:34:36,233 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:36,918 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:38,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:38] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:38,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:38] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:40,217 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203440_214784.jpg
+2026-01-25 20:34:40,219 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.2_avg26.5_20260125_203440_214784.jpg
+2026-01-25 20:34:40,233 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:40] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:40,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:40] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:42,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:42,926 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:44,235 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:44,920 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:45,370 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203445_368219.jpg
+2026-01-25 20:34:45,373 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.4_avg26.7_20260125_203445_368219.jpg
+2026-01-25 20:34:46,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:46,921 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:48,234 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:48,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:50,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:50,411 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203450_409028.jpg
+2026-01-25 20:34:50,413 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.5_avg27.0_20260125_203450_409028.jpg
+2026-01-25 20:34:50,926 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:52,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:34:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:34:55,689 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203455_686585.jpg
+2026-01-25 20:34:55,691 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg26.7_20260125_203455_686585.jpg
+2026-01-25 20:35:00,902 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203500_899660.jpg
+2026-01-25 20:35:00,904 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg27.0_20260125_203500_899660.jpg
+2026-01-25 20:35:06,239 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203506_236052.jpg
+2026-01-25 20:35:06,241 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.4_avg27.1_20260125_203506_236052.jpg
+2026-01-25 20:35:11,666 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203511_663670.jpg
+2026-01-25 20:35:11,668 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg26.7_20260125_203511_663670.jpg
+2026-01-25 20:35:16,785 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203516_782818.jpg
+2026-01-25 20:35:16,787 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.7_avg26.6_20260125_203516_782818.jpg
+2026-01-25 20:35:22,048 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203522_046146.jpg
+2026-01-25 20:35:22,050 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.0_avg26.7_20260125_203522_046146.jpg
+2026-01-25 20:35:27,431 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203527_426775.jpg
+2026-01-25 20:35:27,433 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.8_avg26.7_20260125_203527_426775.jpg
+2026-01-25 20:35:31,948 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:32,772 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203532_769198.jpg
+2026-01-25 20:35:32,774 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg26.7_20260125_203532_769198.jpg
+2026-01-25 20:35:38,118 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203538_115351.jpg
+2026-01-25 20:35:38,120 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.4_avg26.7_20260125_203538_115351.jpg
+2026-01-25 20:35:41,190 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:41] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:41,436 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:41] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:41,507 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:41] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:41,756 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:41] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:41,822 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:41] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:42,071 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:42,138 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:42,397 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:42,450 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:42,712 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:42,773 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:42] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,027 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,099 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,345 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,424 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,593 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203543_588976.jpg
+2026-01-25 20:35:43,596 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.1_avg26.8_20260125_203543_588976.jpg
+2026-01-25 20:35:43,670 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,750 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:43,998 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:43] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:44,063 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:44,321 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:44,391 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:44,644 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:44,707 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:44,971 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:44] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,023 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,289 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,339 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,617 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,663 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,940 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:45,978 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:45] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:46,269 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:46,301 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:46,585 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:46,623 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:46,903 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:46,938 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:46] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:47,218 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:47] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:47,266 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:47] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:47,544 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:47] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:47,587 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:47] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:47,860 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:47] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:47,904 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:47] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:48,182 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:48,226 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:48,495 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:48,536 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:48,812 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:48,855 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:48] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:49,095 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203549_091148.jpg
+2026-01-25 20:35:49,098 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.3_avg26.8_20260125_203549_091148.jpg
+2026-01-25 20:35:49,126 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:49] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:49,175 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:49] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:49,439 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:49] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:49,502 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:49] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:49,753 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:49] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:49,823 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:49] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:50,080 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:50,147 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:50,405 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:50,470 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:50,717 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:50,785 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:50] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,038 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,103 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,353 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,416 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,665 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,740 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:51,981 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:51] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:52,071 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:52,299 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:52,403 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:52,617 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:52,724 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:52,946 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:52] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,035 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,266 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,352 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,579 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,672 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,896 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:53,985 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:53] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:54,219 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:54,305 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:54,393 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203554_388827.jpg
+2026-01-25 20:35:54,397 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max32.6_avg26.6_20260125_203554_388827.jpg
+2026-01-25 20:35:54,537 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:54,621 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:54,860 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:54,940 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:54] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:55,185 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:55] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:55,256 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:55] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:55,499 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:55] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:55,572 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:55] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:55,821 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:55] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:55,887 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:55] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:56,139 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:56,203 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:56,452 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:56,521 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:56,779 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:56,836 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:56] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:57,095 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:57] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:57,153 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:57] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:57,412 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:57] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:57,475 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:57] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:57,729 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:57] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:57,798 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:57] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,043 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,125 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,365 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,453 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,681 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,778 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:58,998 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:58] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:59,097 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:59] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:59,318 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:59] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:59,423 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:59] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:59,633 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:59] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:59,735 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:59] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:35:59,781 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203559_777050.jpg
+2026-01-25 20:35:59,784 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.4_avg28.2_20260125_203559_777050.jpg
+2026-01-25 20:35:59,953 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:35:59] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:00,050 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:00,268 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:00,370 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:00,588 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:00,685 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:00,913 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:00] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,007 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,236 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,330 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,554 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,654 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,868 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:01,987 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:01] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:02,183 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:02,305 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:02,499 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:02,620 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:02,817 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:02,937 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:02] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:03,132 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:03] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:03,256 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:03] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:03,448 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:03] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:03,584 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:03] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:03,765 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:03] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:03,905 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:03] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:04,086 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:04,221 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:04,399 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:04,532 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:04,715 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:04,852 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:04] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,034 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,171 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,355 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,432 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203605_428064.jpg
+2026-01-25 20:36:05,435 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max35.3_avg27.5_20260125_203605_428064.jpg
+2026-01-25 20:36:05,489 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,668 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,803 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:05,984 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:05] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:06,119 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:06,303 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:06,435 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:06,620 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:06,752 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:06,938 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:06] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:07,073 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:07] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:07,254 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:07] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:07,385 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:07] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:07,565 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:07] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:07,704 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:07] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:07,882 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:07] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,020 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,200 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,334 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,518 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,653 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,833 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:08,968 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:08] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:09,149 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:09] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:09,284 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:09] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:09,467 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:09] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:09,601 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:09] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:09,783 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:09] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:09,918 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:09] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:10,099 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:10,238 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:10,415 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:10,567 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:10,735 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:10,853 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203610_849249.jpg
+2026-01-25 20:36:10,856 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max34.9_avg28.1_20260125_203610_849249.jpg
+2026-01-25 20:36:10,882 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:10] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,051 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,202 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,367 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,521 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,688 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,835 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:11,999 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:11] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:12,154 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:12,320 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:12,472 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:12,637 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:12,789 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:12,952 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:12] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:13,103 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:13] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:13,266 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:13] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:13,417 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:13] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:13,582 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:13] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:13,735 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:13] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:13,902 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:13] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:14,052 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:14,218 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:14,370 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:14,534 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:14,684 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:14,853 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:14] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,003 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,170 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,318 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,483 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,634 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,801 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:15,952 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:15] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:16,116 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:16,266 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:16,272 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203616_268867.jpg
+2026-01-25 20:36:16,276 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max34.1_avg27.3_20260125_203616_268867.jpg
+2026-01-25 20:36:16,436 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:16,584 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:16,750 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:16,908 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:16] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:17,070 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:17] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:17,218 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:17] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:17,384 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:17] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:17,536 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:17] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:17,701 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:17] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:17,854 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:17] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,022 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,175 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,337 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,500 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,651 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,821 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:18,966 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:18] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:19,147 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:19] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:19,286 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:19] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:19,467 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:19] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:19,602 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:19] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:19,784 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:19] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:19,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:19] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:20,099 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:20,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:20,419 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:20,552 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:20,735 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:20,868 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:20] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:21,052 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:21] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:21,185 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:21] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:21,365 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:21] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:21,505 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:21] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:21,684 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:21] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:21,746 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203621_742067.jpg
+2026-01-25 20:36:21,749 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max34.5_avg27.0_20260125_203621_742067.jpg
+2026-01-25 20:36:21,819 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:21] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,001 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,137 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,317 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,453 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,641 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,770 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:22,955 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:22] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:23,090 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:23] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:23,273 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:23] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:23,405 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:23] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:23,583 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:23] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:23,724 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:23] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:23,898 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:23] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:24,049 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:24,220 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:24,368 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:24,533 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:24,687 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:24,852 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:24] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,003 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,167 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,320 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,483 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,636 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,802 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:25,953 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:25] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:26,116 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:26,266 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:26,433 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:26,584 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:26,750 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:26,902 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:26] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:27,068 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:27] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:27,133 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203627_129201.jpg
+2026-01-25 20:36:27,137 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max33.6_avg27.7_20260125_203627_129201.jpg
+2026-01-25 20:36:27,223 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:27] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:27,386 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:27] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:27,553 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:27] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:27,700 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:27] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:27,868 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:27] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,019 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,185 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,340 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,503 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,654 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,820 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:28,966 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:28] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:29,135 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:29] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:29,285 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:29] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:29,452 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:29] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:29,600 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:29] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:29,768 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:29] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:29,919 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:29] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:30,088 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:30,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:30,405 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:30,554 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:30,720 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:30,866 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:30] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,034 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,186 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,352 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,504 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,667 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,820 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:31,984 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:31] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:32,136 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:32,300 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:32,451 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:32,616 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:32,622 - __main__ - INFO - Saved RGB image with metadata: captures\rgb\periodic_rgb_20260125_203632_617145.jpg
+2026-01-25 20:36:32,626 - __main__ - INFO - Saved thermal image with metadata: captures\thermal\periodic_thermal_min-273.1_max34.7_avg28.9_20260125_203632_617145.jpg
+2026-01-25 20:36:32,768 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:32,935 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:32] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:33,086 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:33] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:33,251 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:33] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:33,405 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:33] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:33,569 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:33] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:33,719 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:33] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:33,886 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:33] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,036 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,204 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,355 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,523 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,622 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,670 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,832 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,936 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:34,945 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:34] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,137 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,237 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,253 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,451 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,537 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,554 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,749 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,837 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:35,850 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:35] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,033 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,123 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,164 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,321 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,438 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,448 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,621 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,740 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,755 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:36,922 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:36] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,029 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,059 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,240 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,333 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,357 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,539 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,641 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,671 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,823 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,938 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:37,988 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:37] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:38,123 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:38] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:38,245 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:38] "GET /api/images HTTP/1.1" 200 -
+2026-01-25 20:36:38,257 - werkzeug - INFO - 127.0.0.1 - - [25/Jan/2026 20:36:38] "GET /api/images HTTP/1.1" 200 -

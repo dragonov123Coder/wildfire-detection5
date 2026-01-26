@@ -18,28 +18,61 @@ from flask import Flask, render_template, jsonify, send_file
 from ultralytics import YOLO
 import base64
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging with file handler
+log_dir = Path('logs')
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / f'wildfire_detection_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
+
+
+# Load configuration from file
+def load_config(config_path='config.json'):
+    """Load configuration from JSON file"""
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Configuration file not found: {config_path}")
+        raise
+    except json.JSONDecodeError:
+        logger.error(f"Invalid JSON in configuration file: {config_path}")
+        raise
+
+
+CONFIG = load_config()
 
 
 class ThermalProcessor:
     """Processes thermal frames for fire detection"""
     
-    # Fixed temperature range for visualization
-    MIN_TEMP = 15.0
-    MAX_TEMP = 40.0
-    
-    # Fire detection thresholds
-    FIRE_TEMP_THRESHOLD = 180.0  # Temperature in Celsius
-    FIRE_AREA_THRESHOLD = 0.005  # 2% of frame must be hot
-    
-    # Dead pixel threshold
-    DEAD_PIXEL_THRESHOLD = -75.0
-    
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config['server']['thermal_processor']
+        
+        # Fixed temperature range for visualization
+        self.MIN_TEMP = self.config['min_temp_celsius']
+        self.MAX_TEMP = self.config['max_temp_celsius']
+        
+        # Fire detection thresholds
+        self.FIRE_TEMP_THRESHOLD = self.config['fire_temp_threshold_celsius']
+        self.FIRE_AREA_THRESHOLD = self.config['fire_area_threshold']
+        
+        # Dead pixel threshold
+        self.DEAD_PIXEL_THRESHOLD = self.config['dead_pixel_threshold']
+        
         self.lock = Lock()
         self.latest_frame = None
         self.latest_visualization = None
+        
+        logger.info(f"ThermalProcessor initialized - Temp range: {self.MIN_TEMP}-{self.MAX_TEMP}°C, Fire threshold: {self.FIRE_TEMP_THRESHOLD}°C, Area threshold: {self.FIRE_AREA_THRESHOLD}")
     
     def process(self, thermal_frame):
         """Process thermal frame and detect fire"""
@@ -103,14 +136,16 @@ class ThermalProcessor:
 class RGBProcessor:
     """Processes RGB frames using YOLO for fire and smoke detection"""
     
-    FIRE_CONFIDENCE_THRESHOLD = 0.5
-    
-    def __init__(self, model_path='model.pt'):
+    def __init__(self, config):
+        self.config = config['server']['rgb_processor']
+        self.FIRE_CONFIDENCE_THRESHOLD = self.config['fire_confidence_threshold']
+        
         self.lock = Lock()
         self.model = None
         self.latest_frame = None
         self.latest_annotated = None
-        self._load_model(model_path)
+        self._load_model(self.config['model_path'])
+        logger.info(f"RGBProcessor initialized - Fire confidence threshold: {self.FIRE_CONFIDENCE_THRESHOLD}")
     
     def _load_model(self, model_path):
         """Load YOLO model"""
@@ -175,18 +210,27 @@ class RGBProcessor:
 class ConfidenceFusion:
     """Fuses detection confidences from multiple sources"""
     
-    # Weights for confidence fusion (must sum to 1.0)
-    THERMAL_WEIGHT = 0.50
-    RGB_FIRE_WEIGHT = 0.40
-    RGB_SMOKE_WEIGHT = 0.10
-    
-    # Final threshold for fire detection
-    FIRE_DETECTION_THRESHOLD = 0.4
-    
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config['server']['confidence_fusion']
+        
+        # Weights for confidence fusion (must sum to 1.0)
+        self.THERMAL_WEIGHT = self.config['thermal_weight']
+        self.RGB_FIRE_WEIGHT = self.config['rgb_fire_weight']
+        self.RGB_SMOKE_WEIGHT = self.config['rgb_smoke_weight']
+        
+        # Final threshold for fire detection
+        self.FIRE_DETECTION_THRESHOLD = self.config['fire_detection_threshold']
+        
+        # Component alert thresholds
+        self.THERMAL_ALERT_THRESHOLD = self.config['thermal_alert_threshold']
+        self.RGB_FIRE_ALERT_THRESHOLD = self.config['rgb_fire_alert_threshold']
+        self.RGB_SMOKE_ALERT_THRESHOLD = self.config['rgb_smoke_alert_threshold']
+        
         self.lock = Lock()
         self.latest_confidence = 0.0
         self.latest_breakdown = {}
+        
+        logger.info(f"ConfidenceFusion initialized - Weights: Thermal={self.THERMAL_WEIGHT}, Fire={self.RGB_FIRE_WEIGHT}, Smoke={self.RGB_SMOKE_WEIGHT}, Threshold={self.FIRE_DETECTION_THRESHOLD}")
     
     def fuse(self, thermal_conf, rgb_fire_conf, rgb_smoke_conf):
         """Compute fused fire confidence score"""
@@ -226,8 +270,8 @@ class ConfidenceFusion:
 class DataReceiver:
     """Receives camera data from Raspberry Pi"""
     
-    def __init__(self, port=5555):
-        self.port = port
+    def __init__(self, config):
+        self.port = config['server']['network']['port']
         self.socket = None
         self.client_socket = None
         self.running = False
@@ -254,11 +298,12 @@ class DataReceiver:
             try:
                 logger.info("Waiting for Raspberry Pi connection...")
                 self.client_socket, addr = self.socket.accept()
-                logger.info(f"Connected to {addr}")
+                logger.info(f"✓ Connected to Raspberry Pi at {addr}")
                 
                 while self.running:
                     data = self._receive_packet()
                     if data is None:
+                        logger.warning("Packet receive failed, disconnecting...")
                         break
                     
                     rgb_frame, thermal_frame = data
@@ -345,11 +390,15 @@ class DataReceiver:
 class ImageSaver:
     """Saves images periodically and on fire detection"""
     
-    def __init__(self, save_dir='saved_images'):
-        self.save_dir = Path(save_dir)
-        self.save_dir.mkdir(exist_ok=True)
+    def __init__(self, config):
+        saver_config = config['server']['image_saver']
+        self.rgb_dir = Path(saver_config['rgb_directory'])
+        self.thermal_dir = Path(saver_config['thermal_directory'])
+        self.rgb_dir.mkdir(parents=True, exist_ok=True)
+        self.thermal_dir.mkdir(parents=True, exist_ok=True)
         self.last_periodic_save = 0
-        self.periodic_interval = 5.0  # Save every 5 seconds
+        self.periodic_interval = saver_config['periodic_save_interval_seconds']
+        logger.info(f"ImageSaver initialized - RGB dir: {self.rgb_dir}, Thermal dir: {self.thermal_dir}")
     
     def save_if_needed(self, rgb_img, thermal_img, is_fire):
         """Save images if conditions are met"""
@@ -369,12 +418,14 @@ class ImageSaver:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
         
         if rgb_img is not None:
-            rgb_path = self.save_dir / f"{prefix}_rgb_{timestamp}.jpg"
+            rgb_path = self.rgb_dir / f"{prefix}_rgb_{timestamp}.jpg"
             cv2.imwrite(str(rgb_path), cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR))
+            logger.info(f"Saved RGB image: {rgb_path}")
         
         if thermal_img is not None:
-            thermal_path = self.save_dir / f"{prefix}_thermal_{timestamp}.jpg"
+            thermal_path = self.thermal_dir / f"{prefix}_thermal_{timestamp}.jpg"
             cv2.imwrite(str(thermal_path), thermal_img)
+            logger.info(f"Saved thermal image: {thermal_path}")
     
     def save_with_metadata(self, rgb_img, thermal_img, thermal_frame, is_fire):
         """Save images with thermal metadata"""
@@ -406,24 +457,27 @@ class ImageSaver:
         
         # Save RGB image
         if rgb_img is not None:
-            rgb_path = self.save_dir / f"{prefix}_rgb_{timestamp}.jpg"
+            rgb_path = self.rgb_dir / f"{prefix}_rgb_{timestamp}.jpg"
             cv2.imwrite(str(rgb_path), cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR))
+            logger.info(f"Saved RGB image with metadata: {rgb_path}")
         
         # Save thermal image with temperature metadata in filename
         if thermal_img is not None:
-            thermal_path = self.save_dir / f"{prefix}_thermal_{temp_metadata}_{timestamp}.jpg"
+            thermal_path = self.thermal_dir / f"{prefix}_thermal_{temp_metadata}_{timestamp}.jpg"
             cv2.imwrite(str(thermal_path), thermal_img)
+            logger.info(f"Saved thermal image with metadata: {thermal_path}")
 
 
 class WildfireServer:
     """Main server application for wildfire detection"""
     
-    def __init__(self):
-        self.receiver = DataReceiver()
-        self.thermal_processor = ThermalProcessor()
-        self.rgb_processor = RGBProcessor()
-        self.fusion = ConfidenceFusion()
-        self.saver = ImageSaver()
+    def __init__(self, config):
+        self.config = config
+        self.receiver = DataReceiver(config)
+        self.thermal_processor = ThermalProcessor(config)
+        self.rgb_processor = RGBProcessor(config)
+        self.fusion = ConfidenceFusion(config)
+        self.saver = ImageSaver(config)
         
         self.lock = Lock()
         self.latest_rgb_viz = None
@@ -453,9 +507,10 @@ class WildfireServer:
                 # Calculate temperature statistics (excluding dead pixels)
                 temp_stats = None
                 if self.latest_thermal_raw is not None:
+                    dead_pixel_threshold = self.config['server']['thermal_processor']['dead_pixel_threshold']
                     # Filter out dead pixels
                     valid_temps = self.latest_thermal_raw[
-                        self.latest_thermal_raw > ThermalProcessor.DEAD_PIXEL_THRESHOLD
+                        self.latest_thermal_raw > dead_pixel_threshold
                     ]
                     
                     if len(valid_temps) > 0:
@@ -472,7 +527,13 @@ class WildfireServer:
                     'confidence': self.fusion.latest_confidence,
                     'breakdown': self.fusion.get_breakdown(),
                     'fire_count': self.fire_count,
-                    'temperature': temp_stats
+                    'temperature': temp_stats,
+                    'thresholds': {
+                        'fire_detection': self.fusion.FIRE_DETECTION_THRESHOLD,
+                        'thermal_weight': self.fusion.THERMAL_WEIGHT,
+                        'rgb_fire_weight': self.fusion.RGB_FIRE_WEIGHT,
+                        'rgb_smoke_weight': self.fusion.RGB_SMOKE_WEIGHT
+                    }
                 })
     
     def _encode_image(self, img, is_bgr=False):
@@ -487,6 +548,10 @@ class WildfireServer:
     
     def start(self):
         """Start the server"""
+        logger.info("=" * 80)
+        logger.info("WILDFIRE DETECTION SERVER STARTING")
+        logger.info("=" * 80)
+        
         # Start data receiver
         self.receiver.start()
         
@@ -495,11 +560,15 @@ class WildfireServer:
         process_thread.start()
         
         # Start Flask web server
-        logger.info("Starting web server on http://0.0.0.0:8080")
-        self.app.run(host='0.0.0.0', port=8080, debug=False, threaded=True)
+        flask_host = self.config['server']['network']['flask_host']
+        flask_port = self.config['server']['network']['flask_port']
+        logger.info(f"Starting web server on http://{flask_host}:{flask_port}")
+        self.app.run(host=flask_host, port=flask_port, debug=False, threaded=True)
     
     def _process_loop(self):
         """Main processing loop"""
+        loop_sleep = self.config['server']['processing']['loop_sleep_seconds']
+        logger.info("Starting main processing loop")
         while True:
             try:
                 # Get latest frames
@@ -509,9 +578,26 @@ class WildfireServer:
                 thermal_viz, thermal_conf = self.thermal_processor.process(thermal_frame)
                 rgb_viz, fire_conf, smoke_conf = self.rgb_processor.process(rgb_frame)
                 
+                # Log component confidences with thresholds
+                if thermal_conf > 0:
+                    status = "⚠️ THERMAL ALERT" if thermal_conf >= self.fusion.THERMAL_ALERT_THRESHOLD else "thermal"
+                    logger.info(f"{status}: {thermal_conf:.2f} (threshold: {self.fusion.THERMAL_ALERT_THRESHOLD})")
+                
+                if fire_conf > 0:
+                    status = "🔴 RGB FIRE ALERT" if fire_conf >= self.fusion.RGB_FIRE_ALERT_THRESHOLD else "rgb_fire"
+                    logger.info(f"{status}: {fire_conf:.2f} (threshold: {self.fusion.RGB_FIRE_ALERT_THRESHOLD})")
+                
+                if smoke_conf > 0:
+                    status = "⚪ RGB SMOKE ALERT" if smoke_conf >= self.fusion.RGB_SMOKE_ALERT_THRESHOLD else "rgb_smoke"
+                    logger.info(f"{status}: {smoke_conf:.2f} (threshold: {self.fusion.RGB_SMOKE_ALERT_THRESHOLD})")
+                
                 # Fuse confidences
                 final_conf = self.fusion.fuse(thermal_conf, fire_conf, smoke_conf)
                 is_fire = self.fusion.is_fire_detected()
+                
+                # Log final confidence
+                if final_conf >= self.fusion.FIRE_DETECTION_THRESHOLD:
+                    logger.warning(f"🔥 FIRE DETECTION THRESHOLD MET: Final confidence {final_conf:.2f} >= {self.fusion.FIRE_DETECTION_THRESHOLD}")
                 
                 # Update state
                 with self.lock:
@@ -520,22 +606,24 @@ class WildfireServer:
                     self.latest_thermal_raw = thermal_frame  # Store raw data
                     if is_fire and not self.fire_detected:
                         self.fire_count += 1
+                        logger.critical(f"🔥 FIRE ALERT #{self.fire_count} DETECTED! Final: {final_conf:.2f} | Thermal: {thermal_conf:.2f}, Fire: {fire_conf:.2f}, Smoke: {smoke_conf:.2f}")
                     self.fire_detected = is_fire
                 
                 # Save images with metadata
                 self.saver.save_with_metadata(rgb_viz, thermal_viz, thermal_frame, is_fire)
                 
-                # Log fire detection
+                # Log ongoing fire status
                 if is_fire:
-                    logger.warning(f"FIRE DETECTED! Confidence: {final_conf:.2f}")
+                    logger.warning(f"🔥 FIRE DETECTED! Final: {final_conf:.2f} | Thermal: {thermal_conf:.2f}, Fire: {fire_conf:.2f}, Smoke: {smoke_conf:.2f}")
                 
-                time.sleep(0.033)  # ~30 fps processing rate
+                time.sleep(loop_sleep)
                 
             except Exception as e:
-                logger.error(f"Processing error: {e}")
+                logger.error(f"Processing error: {e}", exc_info=True)
                 time.sleep(1)
 
 
 if __name__ == "__main__":
-    server = WildfireServer()
+    config = load_config()
+    server = WildfireServer(config)
     server.start()

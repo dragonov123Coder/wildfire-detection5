@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Raspberry Pi Wildfire Detection Client
 Captures RGB and thermal data, sends to computer for processing
@@ -33,12 +32,33 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# Load configuration from file
+def load_config(config_path='config.json'):
+    """Load configuration from JSON file"""
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Configuration file not found: {config_path}")
+        raise
+    except json.JSONDecodeError:
+        logger.error(f"Invalid JSON in configuration file: {config_path}")
+        raise
+
+
+CONFIG = load_config()
+
+
 class RGBCamera:
     """Handles RGB image capture from Raspberry Pi Camera Module v2"""
     
-    def __init__(self, width=640, height=480):
-        self.width = width
-        self.height = height
+    def __init__(self, config):
+        cam_config = config['client']['rgb_camera']
+        self.width = cam_config['width']
+        self.height = cam_config['height']
+        self.picamera2_framerate = cam_config['picamera2_framerate']
+        self.opencv_framerate = cam_config['opencv_framerate']
+        self.warmup_time = cam_config['warmup_time_seconds']
         self.camera = None
         self.lock = Lock()
         self._initialize_camera()
@@ -50,18 +70,18 @@ class RGBCamera:
                 self.camera = Picamera2()
                 config = self.camera.create_video_configuration(
                     main={"size": (self.width, self.height), "format": "RGB888"},
-                    controls={"FrameRate": 60.0},
+                    controls={"FrameRate": self.picamera2_framerate},
                 )
                 
                 self.camera.configure(config)
                 self.camera.start()
-                time.sleep(2)  # Allow camera to warm up
+                time.sleep(self.warmup_time)  # Allow camera to warm up
                 logger.info("Initialized picamera2")
             else:
                 self.camera = cv2.VideoCapture(0)
                 self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
                 self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-                self.camera.set(cv2.CAP_PROP_FPS, 30)  # Request 30 fps
+                self.camera.set(cv2.CAP_PROP_FPS, self.opencv_framerate)  # Request fps
                 logger.info("Initialized OpenCV camera")
         except Exception as e:
             logger.error(f"Failed to initialize RGB camera: {e}")
@@ -95,7 +115,11 @@ class RGBCamera:
 class ThermalCamera:
     """Handles thermal image capture from MLX90640"""
     
-    def __init__(self):
+    def __init__(self, config):
+        thermal_config = config['client']['thermal_camera']
+        self.i2c_frequency = thermal_config['i2c_frequency']
+        self.initial_refresh_rate = thermal_config['refresh_rate_hz']
+        self.current_refresh_rate = self.initial_refresh_rate
         self.camera = None
         self.lock = Lock()
         self._initialize_camera()
@@ -106,14 +130,34 @@ class ThermalCamera:
             logger.warning("Thermal camera not available")
             return
         
+        logger.info("Warming up thermal camera...")
+        time.sleep(1.0)
+        
         try:
-            i2c = busio.I2C(board.SCL, board.SDA, frequency=1000000)  # Increased I2C frequency
+            i2c = busio.I2C(board.SCL, board.SDA, frequency=self.i2c_frequency)
             self.camera = adafruit_mlx90640.MLX90640(i2c)
-            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_16_HZ  # Increased to 16Hz
-            logger.info("Initialized MLX90640 thermal camera at 16Hz")
+            self._set_refresh_rate(self.current_refresh_rate)
+            logger.info(f"Initialized MLX90640 thermal camera at {self.current_refresh_rate}Hz")
         except Exception as e:
             logger.error(f"Failed to initialize thermal camera: {e}")
             self.camera = None
+    
+    def _set_refresh_rate(self, hz):
+        """Set the thermal camera refresh rate based on Hz value"""
+        if hz == 16:
+            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_16_HZ
+        elif hz == 8:
+            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_8_HZ
+        elif hz == 4:
+            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_4_HZ
+        elif hz == 2:
+            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ
+        elif hz == 1:
+            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_1_HZ
+        else:
+            logger.warning(f"Unsupported refresh rate {hz}Hz, using 16Hz")
+            self.camera.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_16_HZ
+            self.current_refresh_rate = 16
     
     def read(self):
         """Capture a single thermal frame (32x24 temperature array)"""
@@ -126,7 +170,24 @@ class ThermalCamera:
                 self.camera.getFrame(frame)
                 return frame.reshape((24, 32))
             except Exception as e:
-                logger.error(f"Thermal capture failed: {e}")
+                error_msg = str(e)
+                
+                # Check for "Too many retries" error and reduce refresh rate
+                if "Too many retries" in error_msg:
+                    new_refresh_rate = max(1, self.current_refresh_rate // 2)
+                    if new_refresh_rate != self.current_refresh_rate:
+                        logger.warning(f"Thermal capture failed: Too many retries. Reducing refresh rate from {self.current_refresh_rate}Hz to {new_refresh_rate}Hz")
+                        self.current_refresh_rate = new_refresh_rate
+                        try:
+                            self._set_refresh_rate(new_refresh_rate)
+                            logger.info(f"Refresh rate updated to {new_refresh_rate}Hz")
+                        except Exception as rate_error:
+                            logger.error(f"Failed to update refresh rate: {rate_error}")
+                    else:
+                        logger.error(f"Thermal capture failed: {error_msg} (already at minimum refresh rate)")
+                else:
+                    logger.error(f"Thermal capture failed: {error_msg}")
+                
                 return None
     
     def close(self):
@@ -209,10 +270,16 @@ class DataTransmitter:
 class WildfireClient:
     """Main client application for Raspberry Pi"""
     
-    def __init__(self, server_host='192.168.1.100', server_port=5555):
-        self.rgb_camera = RGBCamera()
-        self.thermal_camera = ThermalCamera()
-        self.transmitter = DataTransmitter(server_host, server_port)
+    def __init__(self, config):
+        self.config = config
+        net_config = config['client']['network']
+        self.server_host = net_config['server_host']
+        self.server_port = net_config['server_port']
+        self.retry_interval = net_config['retry_interval_seconds']
+        
+        self.rgb_camera = RGBCamera(config)
+        self.thermal_camera = ThermalCamera(config)
+        self.transmitter = DataTransmitter(self.server_host, self.server_port)
         self.running = False
     
     def run(self):
@@ -221,8 +288,8 @@ class WildfireClient:
         
         # Connect to server
         while self.running and not self.transmitter.connect():
-            logger.info("Retrying connection in 5 seconds...")
-            time.sleep(5)
+            logger.info(f"Retrying connection in {self.retry_interval} seconds...")
+            time.sleep(self.retry_interval)
         
         logger.info("Starting capture loop")
         
@@ -236,10 +303,8 @@ class WildfireClient:
                 if not self.transmitter.send_data(rgb_frame, thermal_frame):
                     logger.warning("Transmission failed, reconnecting...")
                     if not self.transmitter.connect():
-                        time.sleep(5)
+                        time.sleep(self.retry_interval)
                         continue
-                
-                # time.sleep(0.033)  # ~30 fps max transmission rate
                 
             except KeyboardInterrupt:
                 logger.info("Shutting down...")
@@ -260,11 +325,8 @@ class WildfireClient:
 
 
 if __name__ == "__main__":
-    # Configure your computer's IP address and port here
-    SERVER_HOST = '192.168.1.165'  # Change to your computer's IP
-    SERVER_PORT = 5555
-    
-    client = WildfireClient(SERVER_HOST, SERVER_PORT)
+    config = load_config()
+    client = WildfireClient(config)
     
     try:
         client.run()

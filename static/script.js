@@ -17,9 +17,32 @@ class WildfireUI {
             fireValue: document.getElementById('fire-value'),
             smokeValue: document.getElementById('smoke-value'),
             totalValue: document.getElementById('total-value'),
+            thermalPeak: document.getElementById('thermal-peak'),
+            firePeak: document.getElementById('fire-peak'),
+            smokePeak: document.getElementById('smoke-peak'),
+            totalPeak: document.getElementById('total-peak'),
+            thermalThreshold: document.getElementById('thermal-threshold'),
+            fireThreshold: document.getElementById('fire-threshold'),
+            smokeThreshold: document.getElementById('smoke-threshold'),
+            totalThreshold: document.getElementById('total-threshold'),
             tempMin: document.getElementById('temp-min'),
             tempAvg: document.getElementById('temp-avg'),
             tempMax: document.getElementById('temp-max')
+        };
+        
+        // Peak confidence tracking for each bar
+        this.peaks = {
+            thermal: 0.0,
+            fire: 0.0,
+            smoke: 0.0,
+            total: 0.0
+        };
+        
+        this.thresholds = {
+            fire_detection: 0.4,
+            thermal_weight: 0.5,
+            rgb_fire_weight: 0.4,
+            rgb_smoke_weight: 0.1
         };
         
         this.lastFireState = false;
@@ -89,6 +112,11 @@ class WildfireUI {
         this.updateImage(this.elements.rgbFeed, data.rgb);
         this.updateImage(this.elements.thermalFeed, data.thermal);
         
+        // Update thresholds from API response
+        if (data.thresholds) {
+            this.thresholds = data.thresholds;
+        }
+        
         // Update status
         if (data.fire_detected) {
             this.elements.status.textContent = 'FIRE DETECTED';
@@ -117,22 +145,38 @@ class WildfireUI {
             this.updateConfidenceBar(
                 this.elements.thermalBar,
                 this.elements.thermalValue,
-                data.breakdown.thermal || 0
+                this.elements.thermalPeak,
+                this.elements.thermalThreshold,
+                data.breakdown.thermal || 0,
+                'thermal',
+                this.thresholds.thermal_weight
             );
             this.updateConfidenceBar(
                 this.elements.fireBar,
                 this.elements.fireValue,
-                data.breakdown.rgb_fire || 0
+                this.elements.firePeak,
+                this.elements.fireThreshold,
+                data.breakdown.rgb_fire || 0,
+                'fire',
+                this.thresholds.rgb_fire_weight
             );
             this.updateConfidenceBar(
                 this.elements.smokeBar,
                 this.elements.smokeValue,
-                data.breakdown.rgb_smoke || 0
+                this.elements.smokePeak,
+                this.elements.smokeThreshold,
+                data.breakdown.rgb_smoke || 0,
+                'smoke',
+                this.thresholds.rgb_smoke_weight
             );
             this.updateConfidenceBar(
                 this.elements.totalBar,
                 this.elements.totalValue,
-                data.breakdown.total || 0
+                this.elements.totalPeak,
+                this.elements.totalThreshold,
+                data.breakdown.total || 0,
+                'total',
+                this.thresholds.fire_detection
             );
         }
         
@@ -173,7 +217,7 @@ class WildfireUI {
         }
     }
     
-    updateConfidenceBar(barElement, valueElement, value) {
+    updateConfidenceBar(barElement, valueElement, peakElement, thresholdElement, value, peakKey, thresholdValue) {
         // Clamp value between 0 and 1
         const clampedValue = Math.max(0, Math.min(1, value));
         
@@ -182,6 +226,20 @@ class WildfireUI {
         
         // Update text value
         valueElement.textContent = clampedValue.toFixed(2);
+        
+        // Update peak confidence
+        if (clampedValue > this.peaks[peakKey]) {
+            this.peaks[peakKey] = clampedValue;
+        }
+        
+        // Update peak position
+        const peakPercentage = (this.peaks[peakKey] * 100);
+        peakElement.style.left = peakPercentage + '%';
+        
+        // Update threshold line position (threshold is clamped to 0-1)
+        const thresholdClamped = Math.max(0, Math.min(1, thresholdValue));
+        const thresholdPercentage = (thresholdClamped * 100);
+        thresholdElement.style.left = thresholdPercentage + '%';
     }
     
     showFireNotification() {

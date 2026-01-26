@@ -161,6 +161,7 @@ main {
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid #333;
+    position: relative;
 }
 
 .progress-fill {
@@ -168,6 +169,28 @@ main {
     background: linear-gradient(90deg, #3b82f6, #60a5fa);
     transition: width 0.3s ease;
     width: 0%;
+}
+
+.progress-peak {
+    position: absolute;
+    height: 100%;
+    width: 3px;
+    background: #8b0000;
+    top: 0;
+    left: 0;
+    transition: left 0.3s ease;
+    box-shadow: 0 0 4px rgba(139, 0, 0, 0.8);
+}
+
+.progress-threshold {
+    position: absolute;
+    height: 100%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    top: 0;
+    left: 0;
+    border-left: 1px dashed rgba(255, 255, 255, 0.7);
+    z-index: 1;
 }
 
 .confidence-item.total .progress-fill {
