@@ -10,41 +10,40 @@ body {
     color: #e0e0e0;
     line-height: 1.4;
     /* Prevent any scrolling */
-    overflow: hidden; 
+    /* overflow: hidden; 
     height: 100vh;
-    width: 100vw;
+    width: 100vw; */
 }
 
 .container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    max-width: 100%;
+    min-height: 100vh;
+    max-width: 1800px;
     margin: 0 auto;
-    padding: 10px; /* Reduced padding */
-    gap: 10px;
+    padding: 20px;
 }
 
 header {
-    margin-bottom: 0;
+    margin-bottom: 30px;
 }
 
 h1 {
-    font-size: 1.4rem; /* Smaller text */
-    margin-bottom: 8px;
+    font-size: 2rem;
+    margin-bottom: 15px;
     color: #fff;
 }
 
 h2 {
-    font-size: 0.9rem;
-    margin-bottom: 5px;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
     color: #fff;
 }
 
 .status-bar {
     display: flex;
-    gap: 20px;
-    padding: 8px 15px;
+    gap: 30px;
+    padding: 15px;
     background: #1a1a1a;
     border-radius: 8px;
     border: 1px solid #333;
@@ -54,7 +53,6 @@ h2 {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.9rem;
 }
 
 .label {
@@ -63,7 +61,7 @@ h2 {
 }
 
 .status-indicator {
-    padding: 2px 10px;
+    padding: 4px 12px;
     border-radius: 4px;
     font-weight: 600;
     background: #1a4d1a;
@@ -85,36 +83,29 @@ main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-height: 0; /* Critical: allows flex child to shrink below content size */
+    gap: 20px;
 }
 
 .video-grid {
-    flex: 2; /* Takes more space than the breakdown panel */
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    min-height: 0;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 20px;
 }
 
 .video-panel {
     background: #1a1a1a;
     border-radius: 8px;
-    padding: 10px;
+    padding: 20px;
     border: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
 }
 
 .video-container {
     position: relative;
-    flex: 1;
     width: 100%;
+    aspect-ratio: 4/3;
     background: #000;
     border-radius: 4px;
     overflow: hidden;
-    min-height: 0;
 }
 
 .video-container img {
@@ -227,16 +218,31 @@ main {
 .temp-stats {
     display: flex;
     justify-content: space-around;
-    margin-top: 8px;
-    padding: 5px;
+    margin-top: 15px;
+    padding: 12px;
     background: #0a0a0a;
     border-radius: 6px;
     border: 1px solid #333;
 }
 
+.temp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.temp-label {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 600;
+}
+
 .temp-value {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 700;
+    color: #60a5fa;
+    font-variant-numeric: tabular-nums;
 }
 
 #temp-max {
@@ -251,54 +257,36 @@ main {
     color: #fbbf24;
 }
 
-.confidence-panel {
-    flex: 0.8; /* Slightly smaller than video area */
-    background: #1a1a1a;
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 0;
-}
-
-.confidence-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.confidence-item {
-    display: grid;
-    grid-template-columns: 100px 1fr 60px;
-    align-items: center;
-    gap: 10px;
-}
-
-.progress-bar {
-    height: 16px; /* Slimmer bars */
-    background: #0a0a0a;
-    border-radius: 8px;
-    position: relative;
-    overflow: hidden;
-}
-
-.conf-value {
-    font-size: 0.9rem;
-}
-
 footer {
-    padding-top: 5px;
+    margin-top: 30px;
+    padding-top: 20px;
     border-top: 1px solid #333;
     color: #666;
     text-align: center;
-    font-size: 0.8rem;
 }
 
-/* Removal of media queries that force stacking (which creates scrolling) */
-@media (max-height: 600px) {
-    h1 { font-size: 1.1rem; }
-    .temp-value { font-size: 0.9rem; }
-    .progress-bar { height: 12px; }
+@media (max-width: 768px) {
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .confidence-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .conf-value {
+        text-align: left;
+    }
+}
+
+@media (min-width: 1400px) {
+    .video-container {
+        aspect-ratio: 16/9;
+    }
 }

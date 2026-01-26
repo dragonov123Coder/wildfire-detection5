@@ -42,10 +42,10 @@
       "thermal_weight": 0.5,
       "rgb_fire_weight": 0.4,
       "rgb_smoke_weight": 0.1,
-      "fire_detection_threshold": 0.4,
+      "fire_detection_threshold": 0.6,
       "thermal_alert_threshold": 0.8,
       "rgb_fire_alert_threshold": 0.7,
-      "rgb_smoke_alert_threshold": 0.3
+      "rgb_smoke_alert_threshold": 0.8
     },
     "image_saver": {
       "rgb_directory": "captures/rgb",
