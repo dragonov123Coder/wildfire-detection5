@@ -16,6 +16,10 @@
 
       "server_port": 5555,
       "retry_interval_seconds": 5
+    },
+    "gps" : {
+      "port": "/dev/ttyAMA0",
+      "baudrate": 9600
     }
   },
   "server": {

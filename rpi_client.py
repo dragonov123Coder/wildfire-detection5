@@ -11,6 +11,10 @@ import numpy as np
 from threading import Thread, Lock
 import logging
 
+# GPS modules
+import serial
+import pynmea2
+
 # Camera imports with fallbacks
 try:
     from picamera2 import Picamera2
@@ -48,6 +52,32 @@ def load_config(config_path='config.json'):
 
 CONFIG = load_config()
 
+class GPS:
+    def __init__(self, config):
+        try:
+            self.port = config["client"]["gps"]["port"]
+            self.baudrate = config["client"]["gps"]["baudrate"]
+            self.ser = serial.Serial(self.port, self.baudrate, timeout=1)
+        except Exception as e:
+            print(f"An unexpected exeption occured while trying to setup GPS: {e}")
+    
+    def read(self):
+        try:
+            line = self.ser.readline().decode('ascii', errors='replace')
+            if line.startswith('$GPGGA') or line.startswith('$GPRMC'):
+                msg = pynmea2.parse(line)
+                # Ensure we have a valid fix before trying to access attributes
+                if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
+                    return {
+                        'lat': msg.latitude,
+                        'lon': msg.longitude,
+                        'alt': getattr(msg, 'altitude', None),
+                        'timestamp': str(getattr(msg, 'timestamp', '')),
+                        'satellites': getattr(msg, 'num_sats', None)
+                    }
+        except Exception as e:
+            logger.error(f"GPS Parse Error: {e}")
+        return
 
 class RGBCamera:
     """Handles RGB image capture from Raspberry Pi Camera Module v2"""
@@ -215,7 +245,7 @@ class DataTransmitter:
             self.socket = None
             return False
     
-    def send_data(self, rgb_frame, thermal_frame):
+    def send_data(self, rgb_frame, thermal_frame, gps_data):
         """Send RGB and thermal data to computer"""
         if not self.socket:
             return False
@@ -225,7 +255,8 @@ class DataTransmitter:
             data = {
                 'timestamp': time.time(),
                 'has_rgb': rgb_frame is not None,
-                'has_thermal': thermal_frame is not None
+                'has_thermal': thermal_frame is not None,
+                'gps_data': gps_data,
             }
             
             # Serialize RGB frame
@@ -249,10 +280,12 @@ class DataTransmitter:
             header_size = struct.pack('!I', len(header))
             
             packet = header_size + header + rgb_bytes + thermal_bytes
-            
+                        
             # Send packet size first, then packet
             packet_size = struct.pack('!I', len(packet))
             self.socket.sendall(packet_size + packet)
+            
+            logger.info("Data transferred sucsessfullly.")
             
             return True
         except Exception as e:
@@ -279,6 +312,7 @@ class WildfireClient:
         
         self.rgb_camera = RGBCamera(config)
         self.thermal_camera = ThermalCamera(config)
+        self.gps = GPS(config)
         self.transmitter = DataTransmitter(self.server_host, self.server_port)
         self.running = False
     
@@ -293,14 +327,21 @@ class WildfireClient:
         
         logger.info("Starting capture loop")
         
-        while self.running:
+        while self.running:            
             try:
                 # Capture frames
                 rgb_frame = self.rgb_camera.read()
                 thermal_frame = self.thermal_camera.read()
                 
+                try:
+                    # Read GPS data
+                    gps_data = self.gps.read()
+                except Exception:
+                    # logger.info(f"Unable to read GPS data: {e}")
+                    pass
+                    
                 # Send to computer
-                if not self.transmitter.send_data(rgb_frame, thermal_frame):
+                if not self.transmitter.send_data(rgb_frame, thermal_frame, gps_data):
                     logger.warning("Transmission failed, reconnecting...")
                     if not self.transmitter.connect():
                         time.sleep(self.retry_interval)

@@ -278,6 +278,7 @@ class DataReceiver:
         self.lock = Lock()
         self.latest_rgb = None
         self.latest_thermal = None
+        self.latest_gps_data = None
     
     def start(self):
         """Start listening for connections"""
@@ -306,11 +307,12 @@ class DataReceiver:
                         logger.warning("Packet receive failed, disconnecting...")
                         break
                     
-                    rgb_frame, thermal_frame = data
+                    rgb_frame, thermal_frame, gps_data = data
                     
                     with self.lock:
                         self.latest_rgb = rgb_frame
                         self.latest_thermal = thermal_frame
+                        self.latest_gps_data = gps_data
                 
             except Exception as e:
                 if self.running:
@@ -356,8 +358,10 @@ class DataReceiver:
                 thermal_size = np.prod(shape) * dtype.itemsize
                 thermal_bytes = packet[offset:offset+thermal_size]
                 thermal_frame = np.frombuffer(thermal_bytes, dtype=dtype).reshape(shape)
+                
+            gps_data = header['gps_data']
             
-            return rgb_frame, thermal_frame
+            return rgb_frame, thermal_frame, gps_data
             
         except Exception as e:
             logger.error(f"Packet receive error: {e}")
@@ -533,7 +537,8 @@ class WildfireServer:
                         'thermal_weight': self.fusion.THERMAL_WEIGHT,
                         'rgb_fire_weight': self.fusion.RGB_FIRE_WEIGHT,
                         'rgb_smoke_weight': self.fusion.RGB_SMOKE_WEIGHT
-                    }
+                    },
+                    'gps_data': self.receiver.latest_gps_data
                 })
     
     def _encode_image(self, img, is_bgr=False):
@@ -590,6 +595,9 @@ class WildfireServer:
                 if smoke_conf > 0:
                     status = "⚪ RGB SMOKE ALERT" if smoke_conf >= self.fusion.RGB_SMOKE_ALERT_THRESHOLD else "rgb_smoke"
                     logger.info(f"{status}: {smoke_conf:.2f} (threshold: {self.fusion.RGB_SMOKE_ALERT_THRESHOLD})")
+                
+                # Log GPS coordinates
+                logger.info
                 
                 # Fuse confidences
                 final_conf = self.fusion.fuse(thermal_conf, fire_conf, smoke_conf)

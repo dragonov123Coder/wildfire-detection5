@@ -27,7 +27,8 @@ class WildfireUI {
             totalThreshold: document.getElementById('total-threshold'),
             tempMin: document.getElementById('temp-min'),
             tempAvg: document.getElementById('temp-avg'),
-            tempMax: document.getElementById('temp-max')
+            tempMax: document.getElementById('temp-max'),
+            gpsCoords: document.getElementById('gps-coords'),
         };
         
         // Peak confidence tracking for each bar
@@ -49,6 +50,9 @@ class WildfireUI {
         this.notificationPermission = false;
         this.updateInterval = 100; // Update every 100ms (10 fps display)
         
+        this.latest_lat = 0.0;
+        this.latest_lon = 0.0;
+
         this.init();
     }
     
@@ -111,6 +115,7 @@ class WildfireUI {
         // Update images
         this.updateImage(this.elements.rgbFeed, data.rgb);
         this.updateImage(this.elements.thermalFeed, data.thermal);
+        this.updateGPS(data.gps_data);
         
         // Update thresholds from API response
         if (data.thresholds) {
@@ -139,6 +144,11 @@ class WildfireUI {
         
         // Update fire count
         this.elements.fireCount.textContent = data.fire_count || 0;
+
+        // Update the gps thingy
+        if (this.elements.gpsCoords !== null && this.elements.gpsCoords !== undefined) {
+            this.elements.gpsCoords.textContent = `${this.latest_lat}, ${this.latest_lon}`;
+        }
         
         // Update breakdown
         if (data.breakdown) {
@@ -196,6 +206,13 @@ class WildfireUI {
         }
     }
     
+    updateGPS(gps_data) {
+        if (gps_data) {
+            this.latest_lat = gps_data.lat;
+            this.latest_lon = gps_data.lon;
+        }
+    }
+
     updateImage(imgElement, base64Data) {
         if (base64Data) {
             imgElement.src = 'data:image/jpeg;base64,' + base64Data;
