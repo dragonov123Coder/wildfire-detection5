@@ -127,10 +127,8 @@ class WildfireUI {
             this.elements.status.textContent = 'FIRE DETECTED';
             this.elements.status.classList.add('fire');
             
-            // Trigger notification on fire detection change
-            if (!this.lastFireState) {
-                this.showFireNotification();
-            }
+            this.showFireNotification();
+
         } else {
             this.elements.status.textContent = 'Monitoring';
             this.elements.status.classList.remove('fire');
@@ -267,7 +265,7 @@ class WildfireUI {
         
         // Create notification
         const notification = new Notification('🔥 Fire Detected!', {
-            body: 'The wildfire detection system has detected a fire.',
+            body: `The wildfire detection system has detected a fire at (${this.latest_lat}, ${this.latest_lon}).`,
             icon: '/static/fire-icon.png', // Optional icon
             requireInteraction: true, // Keep notification visible
             tag: 'fire-alert' // Replace previous notifications

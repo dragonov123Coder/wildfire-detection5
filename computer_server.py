@@ -380,7 +380,7 @@ class DataReceiver:
     def get_latest_frames(self):
         """Get the latest received frames"""
         with self.lock:
-            return self.latest_rgb, self.latest_thermal
+            return self.latest_rgb, self.latest_thermal, self.latest_gps_data
     
     def stop(self):
         """Stop receiving data"""
@@ -417,7 +417,7 @@ class ImageSaver:
             self._save_images(rgb_img, thermal_img, 'periodic')
             self.last_periodic_save = current_time
     
-    def _save_images(self, rgb_img, thermal_img, prefix):
+    def _save_images(self, rgb_img, thermal_img, prefix, gps_data):
         """Save RGB and thermal images"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
         
@@ -431,22 +431,24 @@ class ImageSaver:
             cv2.imwrite(str(thermal_path), thermal_img)
             logger.info(f"Saved thermal image: {thermal_path}")
     
-    def save_with_metadata(self, rgb_img, thermal_img, thermal_frame, is_fire):
+    def save_with_metadata(self, rgb_img, thermal_img, thermal_frame, is_fire, gps_data):
         """Save images with thermal metadata"""
         current_time = time.time()
         
         # Save on fire detection
         if is_fire:
-            self._save_with_temp_metadata(rgb_img, thermal_img, thermal_frame, 'fire')
-        
+            self._save_with_all_metadata(rgb_img, thermal_img, thermal_frame, 'fire', gps_data)
+            
         # Save periodically
         elif current_time - self.last_periodic_save >= self.periodic_interval:
-            self._save_with_temp_metadata(rgb_img, thermal_img, thermal_frame, 'periodic')
+            self._save_with_all_metadata(rgb_img, thermal_img, thermal_frame, 'periodic', gps_data)
             self.last_periodic_save = current_time
     
-    def _save_with_temp_metadata(self, rgb_img, thermal_img, thermal_frame, prefix):
+    def _save_with_all_metadata(self, rgb_img, thermal_img, thermal_frame, prefix, gps_data):
         """Save images with temperature metadata in filename"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+        
+        logger.info(f"\n\n\n{gps_data}\n\n\n")
         
         # Calculate temperature statistics from raw thermal data
         if thermal_frame is not None:
@@ -461,7 +463,12 @@ class ImageSaver:
         
         # Save RGB image
         if rgb_img is not None:
-            rgb_path = self.rgb_dir / f"{prefix}_rgb_{timestamp}.jpg"
+            # logger.info(f"{gps_data['lat']}, {gps_data['lon']}")
+            # Save with GPS metadata
+            rgb_path = self.rgb_dir / f"{prefix}_rgb_({gps_data['lat']},{gps_data['lon']})_{timestamp}.jpg"
+            logger.info(f"\n\n\n\n\n\n\n\n\n{rgb_path}\n\n\n\n\n\n\n\n\n")
+            
+    
             cv2.imwrite(str(rgb_path), cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR))
             logger.info(f"Saved RGB image with metadata: {rgb_path}")
         
@@ -574,10 +581,20 @@ class WildfireServer:
         """Main processing loop"""
         loop_sleep = self.config['server']['processing']['loop_sleep_seconds']
         logger.info("Starting main processing loop")
+        
+        # Initial gps data
+        gps_data = {
+            'lat':'-',
+            'lon':'-',
+        }
+        
         while True:
             try:
                 # Get latest frames
-                rgb_frame, thermal_frame = self.receiver.get_latest_frames()
+                rgb_frame, thermal_frame, x = self.receiver.get_latest_frames()
+                
+                if x is not None:
+                    gps_data = x
                 
                 # Process frames
                 thermal_viz, thermal_conf = self.thermal_processor.process(thermal_frame)
@@ -618,7 +635,7 @@ class WildfireServer:
                     self.fire_detected = is_fire
                 
                 # Save images with metadata
-                self.saver.save_with_metadata(rgb_viz, thermal_viz, thermal_frame, is_fire)
+                self.saver.save_with_metadata(rgb_viz, thermal_viz, thermal_frame, is_fire, gps_data)
                 
                 # Log ongoing fire status
                 if is_fire:
