@@ -7,13 +7,16 @@ import time
 import json
 import socket
 import struct
+from typing import Optional
 import numpy as np
 from threading import Thread, Lock
 import logging
+import cv2
 
 # GPS modules
 import serial
 import pynmea2
+
 
 # Camera imports with fallbacks
 try:
@@ -21,7 +24,6 @@ try:
     PICAMERA2_AVAILABLE = True
 except ImportError:
     PICAMERA2_AVAILABLE = False
-    import cv2
 
 try:
     import board
@@ -57,7 +59,7 @@ class GPS:
         try:
             self.port = config["client"]["gps"]["port"]
             self.baudrate = config["client"]["gps"]["baudrate"]
-            self.ser = serial.Serial(self.port, self.baudrate, timeout=1)
+            self.ser = +serial.Serial(self.port, self.baudrate, timeout=1)
         except Exception as e:
             print(f"An unexpected exeption occured while trying to setup GPS: {e}")
     
@@ -303,7 +305,11 @@ class DataTransmitter:
 class WildfireClient:
     """Main client application for Raspberry Pi"""
     
-    def __init__(self, config):
+    def __init__(self, config, *, debug_files: Optional[tuple[str, str]]=None):
+        """Initialises the WildfireClient class.
+        Args:
+            debug_files (Optional[tuple[str, str]], optional): Optional if you want to give images. Format: (rgb-image, thermal-image). Defaults to None.
+        """
         self.config = config
         net_config = config['client']['network']
         self.server_host = net_config['server_host']
@@ -315,9 +321,10 @@ class WildfireClient:
         self.gps = GPS(config)
         self.transmitter = DataTransmitter(self.server_host, self.server_port)
         self.running = False
+        self.debug_files = debug_files
     
     def run(self):
-        """Main capture and transmission loop"""
+        """Main capture and transmission loop."""
         self.running = True
         
         # Connect to server
@@ -329,10 +336,15 @@ class WildfireClient:
         
         while self.running:            
             try:
-                # Capture frames
-                rgb_frame = self.rgb_camera.read()
-                thermal_frame = self.thermal_camera.read()
-                
+                # Check if we are running via sensors, or debugging via files
+                if self.debug_files is None:
+                    # Capture frames
+                    rgb_frame = self.rgb_camera.read()
+                    thermal_frame = self.thermal_camera.read()
+                else:
+                    rgb_frame = cv2.imread(self.debug_files[0])
+                    thermal_frame = cv2.imread(self.debug_files[1])
+                    
                 try:
                     # Read GPS data
                     gps_data = self.gps.read()
@@ -367,7 +379,7 @@ class WildfireClient:
 
 if __name__ == "__main__":
     config = load_config()
-    client = WildfireClient(config)
+    client = WildfireClient(config, debug_files=("./packet/rgb.jpg", "./packet/thermal.jpg"))
     
     try:
         client.run()

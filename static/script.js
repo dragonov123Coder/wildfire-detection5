@@ -48,6 +48,7 @@ class WildfireUI {
         
         this.lastFireState = false;
         this.notificationPermission = false;
+        this.activeNotification = null;
         this.updateInterval = 100; // Update every 100ms (10 fps display)
         
         this.latest_lat = 0.0;
@@ -127,13 +128,14 @@ class WildfireUI {
             this.elements.status.textContent = 'FIRE DETECTED';
             this.elements.status.classList.add('fire');
             
-            this.showFireNotification();
-
+            // Show notification if no active notification exists
+            if (!this.activeNotification) {
+                this.showFireNotification();
+            }
         } else {
             this.elements.status.textContent = 'Monitoring';
             this.elements.status.classList.remove('fire');
         }
-        
         this.lastFireState = data.fire_detected;
         
         // Update confidence
@@ -258,7 +260,7 @@ class WildfireUI {
     }
     
     showFireNotification() {
-        // Only show if permission granted
+        // Only show if permission granted or there is an active notification
         if (!this.notificationPermission) {
             return;
         }
@@ -266,10 +268,17 @@ class WildfireUI {
         // Create notification
         const notification = new Notification('🔥 Fire Detected!', {
             body: `The wildfire detection system has detected a fire at (${this.latest_lat}, ${this.latest_lon}).`,
-            icon: '/static/fire-icon.png', // Optional icon
-            requireInteraction: true, // Keep notification visible
-            tag: 'fire-alert' // Replace previous notifications
+            icon: '/static/fire-icon.png',
+            requireInteraction: true
         });
+        
+        // Track active notification
+        this.activeNotification = notification;
+        
+        // Clear reference when notification is closed
+        notification.onclose = () => {
+            this.activeNotification = null;
+        };
         
         // Focus window on click
         notification.onclick = () => {
