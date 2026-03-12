@@ -12,7 +12,7 @@
       "refresh_rate_hz": 16
     },
     "network": {
-      "server_host": "viaangalaxybook.local",
+      "server_host": "fe80::6bcd:1f8:38c3:ec77%18",
 
       "server_port": 5555,
       "retry_interval_seconds": 5
@@ -32,7 +32,7 @@
     "thermal_processor": {
       "min_temp_celsius": 15.0,
       "max_temp_celsius": 40.0,
-      "fire_temp_threshold_celsius": 180.0,
+      "fire_temp_threshold_celsius": 100.0,
       "fire_area_threshold": 0.005,
       "dead_pixel_threshold": -75.0,
       "visualization_width": 640,

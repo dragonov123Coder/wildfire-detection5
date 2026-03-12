@@ -59,7 +59,7 @@ class GPS:
         try:
             self.port = config["client"]["gps"]["port"]
             self.baudrate = config["client"]["gps"]["baudrate"]
-            self.ser = +serial.Serial(self.port, self.baudrate, timeout=1)
+            self.ser = serial.Serial(self.port, self.baudrate, timeout=1)
         except Exception as e:
             print(f"An unexpected exeption occured while trying to setup GPS: {e}")
     
@@ -379,7 +379,7 @@ class WildfireClient:
 
 if __name__ == "__main__":
     config = load_config()
-    client = WildfireClient(config, debug_files=("./packet/rgb.jpg", "./packet/thermal.jpg"))
+    client = WildfireClient(config)
     
     try:
         client.run()
