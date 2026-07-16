@@ -596,6 +596,12 @@ class WildfireServer:
                 if x is not None:
                     gps_data = x
                 
+                # Flip images upside down (rotate 180 degrees vertically)
+                if rgb_frame is not None:
+                    rgb_frame = cv2.flip(rgb_frame, 0)
+                if thermal_frame is not None:
+                    thermal_frame = cv2.flip(thermal_frame, 0)
+                
                 # Process frames
                 thermal_viz, thermal_conf = self.thermal_processor.process(thermal_frame)
                 rgb_viz, fire_conf, smoke_conf = self.rgb_processor.process(rgb_frame)

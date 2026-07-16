@@ -12,7 +12,7 @@
       "refresh_rate_hz": 16
     },
     "network": {
-      "server_host": "fe80::6bcd:1f8:38c3:ec77%18",
+      "server_host": "viaangalaxybook.local",
 
       "server_port": 5555,
       "retry_interval_seconds": 5

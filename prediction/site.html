@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canada Wildfire Risk Map</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --panel: #111114;
+    --border: #222228;
+    --accent: #ff4500;
+    --accent2: #ff8c00;
+    --text: #e8e4dc;
+    --muted: #666670;
+    --low: #00c8ff;
+    --modlow: #38b000;
+    --mid: #ffcc00;
+    --high: #ff9100;
+    --ext: #ff1744;
+    --crit: #800020;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 58px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 1000;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .flame-icon {
+    width: 28px;
+    height: 28px;
+    animation: flicker 1.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes flicker {
+    0%   { filter: drop-shadow(0 0 4px #ff4500aa); transform: scaleY(1); }
+    50%  { filter: drop-shadow(0 0 10px #ff8c00cc); transform: scaleY(1.08) scaleX(0.96); }
+    100% { filter: drop-shadow(0 0 6px #ff2200aa); transform: scaleY(0.95); }
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--text);
+  }
+
+  header h1 span { color: var(--accent); }
+
+  .header-stats {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-val {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* ── Layout ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Map ── */
+  #map {
+    flex: 1;
+    background: #0d0d10;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 270px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* ── Threshold Slider ── */
+  .slider-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .slider-row span { font-size: 11px; color: var(--muted); }
+  .slider-val {
+    font-size: 13px !important;
+    color: var(--accent) !important;
+    font-weight: 500;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    margin-bottom: 6px;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--accent);
+    transition: box-shadow 0.2s;
+  }
+
+  input[type=range]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 14px var(--accent);
+  }
+
+  /* ── Legend ── */
+  .legend-bar {
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #00c8ff, #38b000, #ffcc00, #ff9100, #ff1744, #800020);
+    margin-bottom: 8px;
+  }
+
+  .legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── Risk Breakdown ── */
+  .risk-bars { display: flex; flex-direction: column; gap: 6px; }
+
+  .risk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .risk-name {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 48px;
+    flex-shrink: 0;
+  }
+
+  .risk-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .risk-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(.23,1,.32,1);
+  }
+
+  .risk-pct {
+    font-size: 10px;
+    color: var(--text);
+    width: 32px;
+    text-align: right;
+  }
+
+  /* ── Hover Info ── */
+  .hover-info {
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .info-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .info-val {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .risk-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .no-hover {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ── Upload ── */
+  .upload-zone {
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .upload-zone:hover {
+    border-color: var(--accent);
+    background: rgba(255,69,0,0.04);
+  }
+
+  .upload-zone input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-text {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .upload-text strong { color: var(--accent); font-weight: 500; }
+
+  /* ── Loading overlay ── */
+  #loading {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,11,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    gap: 16px;
+    transition: opacity 0.5s;
+  }
+
+  #loading.hidden { opacity: 0; pointer-events: none; }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── Leaflet dark overrides ── */
+  .leaflet-container { background: #0d0d10; }
+  .leaflet-tile { filter: brightness(0.4) saturate(0.5) hue-rotate(180deg); }
+  .leaflet-control-zoom a {
+    background: var(--panel) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+  }
+  .leaflet-control-zoom a:hover { background: var(--border) !important; }
+  .leaflet-control-attribution {
+    background: rgba(10,10,11,0.7) !important;
+    color: var(--muted) !important;
+    font-size: 9px !important;
+  }
+  .leaflet-control-attribution a { color: var(--muted) !important; }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <svg class="flame-icon" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C12 2 5 10 5 17a7 7 0 0014 0c0-3-2-5-2-5s1 4-2 6c-1.5 1-3 0-3-2s2-4 2-7c0 0 3 3 4 6 1-2 1-4 1-5 0-4-9-10-9-10z" fill="#ff4500"/>
+    <path d="M12 14c0 0-2 3-2 5a2 2 0 004 0c0-2-2-5-2-5z" fill="#ffb300"/>
+  </svg>
+  <div class="loading-text" id="loading-text">Awaiting data</div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <svg class="flame-icon" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C12 2 5 10 5 17a7 7 0 0014 0c0-3-2-5-2-5s1 4-2 6c-1.5 1-3 0-3-2s2-4 2-7c0 0 3 3 4 6 1-2 1-4 1-5 0-4-9-10-9-10z" fill="#ff4500"/>
+      <path d="M12 14c0 0-2 3-2 5a2 2 0 004 0c0-2-2-5-2-5z" fill="#ffb300"/>
+    </svg>
+    <h1>CANADA <span>FIRE RISK</span></h1>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <span class="stat-val" id="stat-points">—</span>
+      <span class="stat-label">Data Points</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val" id="stat-high">—</span>
+      <span class="stat-label">High Risk %</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val" id="stat-max">—</span>
+      <span class="stat-label">Peak Risk</span>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+  <div id="map"></div>
+
+  <div class="sidebar">
+
+    <!-- Upload -->
+    <div class="sidebar-section">
+      <div class="section-label">Data Source</div>
+      <div class="upload-zone">
+        <input type="file" id="csv-upload" accept=".csv">
+        <div class="upload-text">
+          <strong>Drop CSV here</strong><br>
+          or click to browse<br>
+          <span style="font-size:9px">expects: lat, lon, fire_risk</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Threshold -->
+    <div class="sidebar-section">
+      <div class="section-label">Risk Threshold</div>
+      <div class="slider-row">
+        <span>Show points above</span>
+        <span class="slider-val" id="threshold-val">0.00</span>
+      </div>
+      <input type="range" id="threshold" min="0" max="1" step="0.01" value="0">
+
+      <div class="section-label" style="margin-top:14px">Heatmap Intensity</div>
+      <div class="slider-row">
+        <span>Radius</span>
+        <span class="slider-val" id="radius-val">18px</span>
+      </div>
+      <input type="range" id="radius" min="5" max="50" step="1" value="18">
+
+      <div class="slider-row" style="margin-top:8px">
+        <span>Blur</span>
+        <span class="slider-val" id="blur-val">15px</span>
+      </div>
+      <input type="range" id="blur" min="1" max="40" step="1" value="15">
+    </div>
+
+    <!-- Legend -->
+    <div class="sidebar-section">
+      <div class="section-label">Risk Scale</div>
+      <div class="legend-bar"></div>
+      <div class="legend-labels">
+        <span>0.0</span><span>0.2</span><span>0.4</span><span>0.6</span><span>0.8</span><span>1.0</span>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="sidebar-section">
+      <div class="section-label">Distribution</div>
+      <div class="risk-bars">
+        <div class="risk-row">
+          <span class="risk-name">Low</span>
+          <div class="risk-track"><div class="risk-fill" id="bar-low" style="width:0%;background:#00c8ff"></div></div>
+          <span class="risk-pct" id="pct-low">0%</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">M-Low</span>
+          <div class="risk-track"><div class="risk-fill" id="bar-modlow" style="width:0%;background:#38b000"></div></div>
+          <span class="risk-pct" id="pct-modlow">0%</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">Mod</span>
+          <div class="risk-track"><div class="risk-fill" id="bar-mod" style="width:0%;background:#ffcc00"></div></div>
+          <span class="risk-pct" id="pct-mod">0%</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">High</span>
+          <div class="risk-track"><div class="risk-fill" id="bar-high" style="width:0%;background:#ff9100"></div></div>
+          <span class="risk-pct" id="pct-high">0%</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">Ext</span>
+          <div class="risk-track"><div class="risk-fill" id="bar-ext" style="width:0%;background:#ff1744"></div></div>
+          <span class="risk-pct" id="pct-ext">0%</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">Crit</span>
+          <div class="risk-track"><div class="risk-fill" id="bar-crit" style="width:0%;background:#800020"></div></div>
+          <span class="risk-pct" id="pct-crit">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hover Info -->
+    <div class="hover-info" id="hover-panel">
+      <p class="no-hover">Hover over the map to inspect individual grid points.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Map setup ──────────────────────────────────────────────
+const map = L.map('map', {
+  center: [60, -96],
+  zoom: 4,
+  zoomControl: true,
+  preferCanvas: true
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 14
+}).addTo(map);
+
+let heatLayer = null;
+let rawData = [];
+
+// ── Helpers ───────────────────────────────────────────────
+function riskColor(v) {
+  if (v < 0.1) return '#00c8ff'; // Blue
+  if (v < 0.3) return '#38b000'; // Green
+  if (v < 0.5) return '#ffcc00'; // Yellow
+  if (v < 0.7) return '#ff9100'; // Orange
+  if (v < 0.9) return '#ff1744'; // Red
+  return '#800020';              // Maroon
+}
+
+function riskLabel(v) {
+  if (v < 0.1) return ['LOW',       '#00c8ff'];
+  if (v < 0.3) return ['MOD-LOW',   '#38b000'];
+  if (v < 0.5) return ['MODERATE',  '#ffcc00'];
+  if (v < 0.7) return ['HIGH',      '#ff9100'];
+  if (v < 0.9) return ['EXTREME',   '#ff1744'];
+  return             ['CRITICAL',  '#800020'];
+}
+
+// ── Rebuild heatmap ───────────────────────────────────────
+function rebuildHeat() {
+  const threshold = parseFloat(document.getElementById('threshold').value);
+  const radius    = parseInt(document.getElementById('radius').value);
+  const blur      = parseInt(document.getElementById('blur').value);
+
+  const filtered = rawData.filter(d => d.fire_risk >= threshold);
+
+  const points = filtered.map(d => [d.lat, d.lon, d.fire_risk]);
+
+  if (heatLayer) map.removeLayer(heatLayer);
+
+  if (points.length === 0) return;
+
+  heatLayer = L.heatLayer(points, {
+    radius,
+    blur,
+    maxZoom: 1, // Set to 1 (or 0) so point intensity doesn't degrade/shift colors when zooming out
+    max: 1.0,
+    gradient: { 
+      0.0: '#00c8ff', // Blue
+      0.1: '#38b000', // Green
+      0.3: '#ffcc00', // Yellow
+      0.5: '#ff9100', // Orange
+      0.7: '#ff1744', // Red
+      0.9: '#800020', // Maroon
+      1.0: '#800020'
+    }
+  }).addTo(map);
+}
+
+// ── Stats & distribution ──────────────────────────────────
+function updateStats() {
+  const n = rawData.length;
+  if (n === 0) return;
+
+  const max = Math.max(...rawData.map(d => d.fire_risk));
+  const highCount = rawData.filter(d => d.fire_risk >= 0.5).length;
+
+  document.getElementById('stat-points').textContent = n.toLocaleString();
+  document.getElementById('stat-high').textContent = ((highCount / n) * 100).toFixed(1) + '%';
+  document.getElementById('stat-max').textContent = max.toFixed(3);
+
+  const low    = rawData.filter(d => d.fire_risk < 0.1).length;
+  const modLow = rawData.filter(d => d.fire_risk >= 0.1 && d.fire_risk < 0.3).length;
+  const mod    = rawData.filter(d => d.fire_risk >= 0.3 && d.fire_risk < 0.5).length;
+  const high   = rawData.filter(d => d.fire_risk >= 0.5 && d.fire_risk < 0.7).length;
+  const ext    = rawData.filter(d => d.fire_risk >= 0.7 && d.fire_risk < 0.9).length;
+  const crit   = rawData.filter(d => d.fire_risk >= 0.9).length;
+
+  const pct = v => ((v / n) * 100).toFixed(1) + '%';
+
+  document.getElementById('bar-low').style.width    = pct(low);
+  document.getElementById('bar-modlow').style.width = pct(modLow);
+  document.getElementById('bar-mod').style.width    = pct(mod);
+  document.getElementById('bar-high').style.width   = pct(high);
+  document.getElementById('bar-ext').style.width    = pct(ext);
+  document.getElementById('bar-crit').style.width   = pct(crit);
+
+  document.getElementById('pct-low').textContent    = pct(low);
+  document.getElementById('pct-modlow').textContent = pct(modLow);
+  document.getElementById('pct-mod').textContent    = pct(mod);
+  document.getElementById('pct-high').textContent   = pct(high);
+  document.getElementById('pct-ext').textContent    = pct(ext);
+  document.getElementById('pct-crit').textContent   = pct(crit);
+}
+
+// ── CSV parsing ───────────────────────────────────────────
+function loadCSV(file) {
+  setLoading(true, 'Parsing CSV...');
+
+  Papa.parse(file, {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+    complete(results) {
+      rawData = results.data
+        .filter(r => r.lat != null && r.lon != null && r.fire_risk != null)
+        .map(r => ({ lat: +r.lat, lon: +r.lon, fire_risk: +r.fire_risk }));
+
+      setLoading(true, 'Building heatmap...');
+      setTimeout(() => {
+        updateStats();
+        rebuildHeat();
+        setLoading(false);
+      }, 50);
+    },
+    error(err) {
+      alert('CSV parse error: ' + err.message);
+      setLoading(false);
+    }
+  });
+}
+
+function setLoading(show, msg = '') {
+  const el = document.getElementById('loading');
+  const tx = document.getElementById('loading-text');
+  tx.textContent = msg;
+  if (show) {
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+// Hide loading initially (no data yet)
+setLoading(false);
+
+// ── File upload ────────────────────────────────────────────
+document.getElementById('csv-upload').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) loadCSV(file);
+});
+
+// ── Sliders ────────────────────────────────────────────────
+document.getElementById('threshold').addEventListener('input', function() {
+  document.getElementById('threshold-val').textContent = parseFloat(this.value).toFixed(2);
+  rebuildHeat();
+});
+
+document.getElementById('radius').addEventListener('input', function() {
+  document.getElementById('radius-val').textContent = this.value + 'px';
+  rebuildHeat();
+});
+
+document.getElementById('blur').addEventListener('input', function() {
+  document.getElementById('blur-val').textContent = this.value + 'px';
+  rebuildHeat();
+});
+
+// ── Map hover inspection ──────────────────────────────────
+map.on('mousemove', function(e) {
+  if (rawData.length === 0) return;
+
+  const { lat, lng } = e.latlng;
+  const SNAP = 0.15; // degrees — snap radius for nearest point
+
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (const d of rawData) {
+    const dist = Math.abs(d.lat - lat) + Math.abs(d.lon - lng);
+    if (dist < minDist) { minDist = dist; nearest = d; }
+  }
+
+  if (!nearest || minDist > SNAP) {
+    document.getElementById('hover-panel').innerHTML =
+      `<p class="no-hover">Hover over the map to inspect individual grid points.</p>`;
+    return;
+  }
+
+  const [label, color] = riskLabel(nearest.fire_risk);
+
+  document.getElementById('hover-panel').innerHTML = `
+    <div>
+      <div class="info-label">Coordinates</div>
+      <div class="info-val">${nearest.lat.toFixed(2)}° N, ${Math.abs(nearest.lon.toFixed(2))}° W</div>
+    </div>
+    <div>
+      <div class="info-label">Fire Risk Score</div>
+      <div class="info-val">${(nearest.fire_risk * 100).toFixed(1)}%</div>
+    </div>
+    <div>
+      <div class="info-label">Risk Level</div>
+      <span class="risk-badge" style="background:${color}22;color:${color};border:1px solid ${color}44">${label}</span>
+    </div>
+  `;
+});
+</script>
+</body>
+</html>
