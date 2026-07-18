@@ -508,6 +508,14 @@ class WildfireServer:
         def index():
             return render_template('index.html')
         
+        @self.app.route('/dashboard')
+        def dashboard():
+            return render_template('dashboard.html')
+        
+        @self.app.route('/prediction')
+        def prediction():
+            return send_file('prediction/site.html')
+        
         @self.app.route('/api/images')
         def get_images():
             """Return latest RGB and thermal images as base64"""

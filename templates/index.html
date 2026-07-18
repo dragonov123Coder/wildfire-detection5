@@ -3,114 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wildfire Detection System</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Wildfire Detection System - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #999;
+            margin-bottom: 50px;
+            font-weight: 300;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .button-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 2px solid #333;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            min-height: 250px;
+        }
+
+        .button-card:hover {
+            border-color: #555;
+            background: linear-gradient(135deg, #252525 0%, #353535 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .button-card:active {
+            transform: translateY(-2px);
+        }
+
+        .icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .button-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .button-description {
+            font-size: 0.95rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .button-card.dashboard .icon {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .button-card.prediction .icon {
+            background: linear-gradient(135deg, #4ecdc4, #44a5c2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #333;
+        }
+
+        @media (max-width: 600px) {
+            .button-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .button-card {
+                min-height: 200px;
+                padding: 30px 15px;
+            }
+
+            .icon {
+                font-size: 2.5rem;
+            }
+
+            .button-title {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Wildfire Detection System</h1>
-            <div class="status-bar">
-                <div class="status-item">
-                    <span class="label">Status:</span>
-                    <span id="status" class="status-indicator">Monitoring</span>
-                </div>
-                <div class="status-item">
-                    <span class="label">Confidence:</span>
-                    <span id="confidence">0.00</span>
-                </div>
-                <div class="status-item">
-                    <span class="label">Fire Events:</span>
-                    <span id="fire-count">0</span>
-                </div>
-                <div class="status-item gps-item">
-                    <span class="label">GPS:</span>
-                    <span id="gps-coords" class="gps-value">(-, -)</span>
-                </div>
-            </div>
-        </header>
+        <h1>🔥 Wildfire Detection System</h1>
+        <p class="subtitle">Integrated Monitoring & Prediction</p>
 
-        <main>
-            <div class="video-grid">
-                <div class="video-panel">
-                    <h2>RGB Camera</h2>
-                    <div class="video-container">
-                        <img id="rgb-feed" src="" alt="RGB Camera Feed">
-                        <div class="no-signal">No Signal</div>
-                    </div>
-                </div>
+        <div class="button-grid">
+            <a href="/dashboard" class="button-card dashboard">
+                <span class="icon">📊</span>
+                <div class="button-title">Dashboard</div>
+                <div class="button-description">Live monitoring with RGB and thermal cameras</div>
+            </a>
 
-                <div class="video-panel">
-                    <h2>Thermal Camera</h2>
-                    <div class="video-container">
-                        <img id="thermal-feed" src="" alt="Thermal Camera Feed">
-                        <div class="no-signal">No Signal</div>
-                    </div>
-                    <div class="temp-stats">
-                        <div class="temp-item">
-                            <span class="temp-label">Min:</span>
-                            <span id="temp-min" class="temp-value">--°C</span>
-                        </div>
-                        <div class="temp-item">
-                            <span class="temp-label">Avg:</span>
-                            <span id="temp-avg" class="temp-value">--°C</span>
-                        </div>
-                        <div class="temp-item">
-                            <span class="temp-label">Max:</span>
-                            <span id="temp-max" class="temp-value">--°C</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <a href="/prediction" class="button-card prediction">
+                <span class="icon">🤖</span>
+                <div class="button-title">Prediction System</div>
+                <div class="button-description">Fire risk prediction and analysis</div>
+            </a>
+        </div>
 
-            <div class="confidence-panel">
-                <h2>Detection Breakdown</h2>
-                <div class="confidence-bars">
-                    <div class="confidence-item">
-                        <span class="conf-label">Thermal:</span>
-                        <div class="progress-bar">
-                            <div id="thermal-bar" class="progress-fill"></div>
-                            <div id="thermal-peak" class="progress-peak"></div>
-                            <div id="thermal-threshold" class="progress-threshold"></div>
-                        </div>
-                        <span id="thermal-value" class="conf-value">0.00</span>
-                    </div>
-                    <div class="confidence-item">
-                        <span class="conf-label">RGB Fire:</span>
-                        <div class="progress-bar">
-                            <div id="fire-bar" class="progress-fill"></div>
-                            <div id="fire-peak" class="progress-peak"></div>
-                            <div id="fire-threshold" class="progress-threshold"></div>
-                        </div>
-                        <span id="fire-value" class="conf-value">0.00</span>
-                    </div>
-                    <div class="confidence-item">
-                        <span class="conf-label">RGB Smoke:</span>
-                        <div class="progress-bar">
-                            <div id="smoke-bar" class="progress-fill"></div>
-                            <div id="smoke-peak" class="progress-peak"></div>
-                            <div id="smoke-threshold" class="progress-threshold"></div>
-                        </div>
-                        <span id="smoke-value" class="conf-value">0.00</span>
-                    </div>
-                    <div class="confidence-item total">
-                        <span class="conf-label">Total:</span>
-                        <div class="progress-bar">
-                            <div id="total-bar" class="progress-fill"></div>
-                            <div id="total-peak" class="progress-peak"></div>
-                            <div id="total-threshold" class="progress-threshold"></div>
-                        </div>
-                        <span id="total-value" class="conf-value">0.00</span>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <footer>
-            <p>Last Update: <span id="last-update">Never</span></p>
-        </footer>
+        <div class="footer">
+            <p>Wildfire Detection System v2.0</p>
+        </div>
     </div>
-
-    <script src="/static/script.js"></script>
 </body>
 </html>

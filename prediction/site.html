@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Canada Wildfire Risk Map</title>
+<title>Wildfire Prediction System</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -15,12 +15,12 @@
 
 <style>
   :root {
-    --bg: #0a0a0b;
+    --bg: #0f0f0f;
     --panel: #111114;
     --border: #222228;
     --accent: #ff4500;
     --accent2: #ff8c00;
-    --text: #e8e4dc;
+    --text: #e0e0e0;
     --muted: #666670;
     --low: #00c8ff;
     --modlow: #38b000;
@@ -35,7 +35,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -74,7 +74,7 @@
   }
 
   header h1 {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     font-size: 22px;
     letter-spacing: 3px;
     color: var(--text);
@@ -163,7 +163,7 @@
   }
 
   input[type=range] {
-    -webkit-appearance: none;
+    /*-webkit-appearance: none;*/
     width: 100%;
     height: 3px;
     background: var(--border);
@@ -379,11 +379,11 @@
 <!-- Header -->
 <header>
   <div class="logo">
-    <svg class="flame-icon" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- <svg class="flame-icon" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 2C12 2 5 10 5 17a7 7 0 0014 0c0-3-2-5-2-5s1 4-2 6c-1.5 1-3 0-3-2s2-4 2-7c0 0 3 3 4 6 1-2 1-4 1-5 0-4-9-10-9-10z" fill="#ff4500"/>
       <path d="M12 14c0 0-2 3-2 5a2 2 0 004 0c0-2-2-5-2-5z" fill="#ffb300"/>
-    </svg>
-    <h1>CANADA <span>FIRE RISK</span></h1>
+    </svg> -->
+    <h1>Wildfire <span>Prediction </span>System</h1>
   </div>
   <div class="header-stats">
     <div class="stat">
