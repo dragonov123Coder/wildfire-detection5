@@ -6,25 +6,27 @@ from datetime import datetime, UTC
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from global_land_mask import globe
+import json
+
+# =====================================================================
+#                         CONFIGURATION
+# =====================================================================
+
+with open("../config.json") as file:
+    config = json.load(file)
 
 # =====================================================================
 # ⚙️ GRID CONCENTRATION CONFIGURATION
 # =====================================================================
-# Change the STEP value below to control the density of your grid points:
-# - STEP = 1.0  -> Coarse/Fast (~70 points)  <-- RECOMMENDED FOR TESTING
-# - STEP = 0.5  -> Medium Density (~250 points)
-# - STEP = 0.25 -> High Density (~1,000 points)
-# - STEP = 0.15 -> Very High Density (~2,500 points)
-STEP = 1.0  
+STEP = config["server"]["prediction"]["grid_step"] 
 
-# Adjust to prevent overwhelming the API with too many parallel requests
-MAX_WORKERS = 3  # Lowered from 10 to reduce rate-limit/timeout issues
-BATCH_SIZE = 50  # Lowered from 100 for smaller, safer request payloads
+MAX_WORKERS = config["server"]["prediction"]["max_workers"]
+BATCH_SIZE = config["server"]["prediction"]["batch_size"]
 # =====================================================================
 
 # Load the trained model
 try:
-    model = joblib.load("wildfire_model.pkl")
+    model = joblib.load(config["server"]["prediction"]["model_path"])
     print("Model loaded successfully.")
 except Exception as e:
     print(f"Error loading model: {e}")
@@ -36,17 +38,6 @@ LON_MIN, LON_MAX = -120.0, -110.0
 MAX_RETRIES = 3
 
 today = datetime.now(UTC)
-
-# -----------------------
-# 🌲 Vegetation Proxy (MATCH TRAINING)
-# -----------------------
-def vegetation_proxy(lat, lon):
-    if lat > 65:
-        return np.random.uniform(0.1, 0.3)
-    elif lat > 55:
-        return np.random.uniform(0.3, 0.6)
-    else:
-        return np.random.uniform(0.6, 0.9)
 
 # -----------------------
 # 🌍 ALBERTA BORDER FILTER
@@ -95,7 +86,7 @@ if len(points) == 0:
     exit()
 
 # -----------------------
-# WEATHER FETCH
+# WEATHER & ECOLOGICAL FETCH (FIXED TO HOURLY BATCHING)
 # -----------------------
 def get_weather_batch(batch_points):
     lats_list = [p[0] for p in batch_points]
@@ -105,9 +96,12 @@ def get_weather_batch(batch_points):
     params = {
         "latitude": ",".join(map(str, lats_list)),
         "longitude": ",".join(map(str, lons_list)),
-        "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation"
+        # Fetch hourly blocks for today to bypass daily limitations natively
+        "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,soil_moisture_0_to_1cm",
+        "forecast_days": 1,
+        "timezone": "UTC"
     }
-
+    
     for attempt in range(MAX_RETRIES):
         try:
             res = requests.get(url, params=params, timeout=15)
@@ -131,47 +125,49 @@ def get_weather_batch(batch_points):
     return None
 
 # -----------------------
-# PARSE RESPONSE
+# PARSE AND AGGREGATE RESPONSE (FIXED)
 # -----------------------
 def parse_batch_response(data, batch_points):
     rows = []
+    
+    if isinstance(data, dict):
+        data = [data]
 
-    if isinstance(data, list):
-        for j, entry in enumerate(data):
-            cw = entry.get("current")
-            if not cw:
-                continue
+    for j, entry in enumerate(data):
+        hourly = entry.get("hourly", {})
+        if not hourly:
+            continue
 
-            lat, lon = batch_points[j]
-            rows.append({
-                "latitude": lat,
-                "longitude": lon,
-                "temp": cw.get("temperature_2m"),
-                "humidity": cw.get("relative_humidity_2m"),
-                "wind": cw.get("wind_speed_10m"),
-                "rain": cw.get("precipitation", 0),
-                "day_of_year": today.timetuple().tm_yday,
-                "vegetation_index": vegetation_proxy(lat, lon)
-            })
+        lat, lon = batch_points[j]
+        
+        # Open-Meteo returns lists of 24 elements (one for each hour of today)
+        h_temps = hourly.get("temperature_2m", [])
+        h_humids = hourly.get("relative_humidity_2m", [])
+        h_winds = hourly.get("wind_speed_10m", [])
+        h_rains = hourly.get("precipitation", [])
+        h_soils = hourly.get("soil_moisture_0_to_1cm", [])
 
-    elif isinstance(data, dict):
-        current = data.get("current", {})
-        temp = current.get("temperature_2m")
-        humidity = current.get("relative_humidity_2m")
-        wind = current.get("wind_speed_10m")
-        rain = current.get("precipitation")
+        # Prevent parsing errors if any list comes back empty
+        if not h_temps:
+            continue
 
-        for j, (lat, lon) in enumerate(batch_points):
-            rows.append({
-                "latitude": lat,
-                "longitude": lon,
-                "temp": temp[j] if isinstance(temp, list) else temp,
-                "humidity": humidity[j] if isinstance(humidity, list) else humidity,
-                "wind": wind[j] if isinstance(wind, list) else wind,
-                "rain": rain[j] if isinstance(rain, list) else rain,
-                "day_of_year": today.timetuple().tm_yday,
-                "vegetation_index": vegetation_proxy(lat, lon)
-            })
+        # Generate custom summary aggregates to perfectly match training sets
+        temp_mean = np.mean(h_temps)
+        humidity_mean = np.mean(h_humids)
+        wind_max = np.max(h_winds)
+        rain_sum = np.sum(h_rains)
+        soil_mean = np.mean(h_soils)
+
+        rows.append({
+            "latitude": lat,
+            "longitude": lon,
+            "temp": temp_mean,
+            "humidity": humidity_mean,
+            "wind": wind_max,
+            "rain": rain_sum,
+            "day_of_year": today.timetuple().tm_yday,
+            "soil_moisture": soil_mean
+        })
 
     return rows
 
@@ -202,7 +198,6 @@ with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         completed += len(batch)
         print(f"Progress: {completed}/{len(points)} points processed. Rows collected: {len(all_rows)}")
         
-        # Slight delay to avoid hammering the server
         time.sleep(0.5)
 
 print(f"\nTotal rows successfully collected: {len(all_rows)}")
@@ -221,7 +216,7 @@ if all_rows and model is not None:
         "wind",
         "rain",
         "day_of_year",
-        "vegetation_index"
+        "soil_moisture"
     ]
 
     df_features = df_features[FEATURES].dropna()
@@ -243,8 +238,8 @@ if all_rows and model is not None:
         "fire_risk": fire_probs
     })
 
-    df_results.to_csv("alberta_fire_risk_map.csv", index=False)
-    print(f"Success! Saved {len(df_results)} mapped risk values to 'alberta_fire_risk_map.csv'.")
+    df_results.to_csv(config["server"]["prediction"]["output_path"], index=False)
+    print(f"Success! Saved {len(df_results)} mapped risk values to path indicated in 'config.json'.")
 
 else:
     if model is None:

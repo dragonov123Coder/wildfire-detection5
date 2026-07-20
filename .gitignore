@@ -6,4 +6,4 @@ logs/
 *.pkl
 *fires1.csv
 
-prediction/data/firms/
+prediction/data/input/firms/

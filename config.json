@@ -59,6 +59,21 @@
     "processing": {
       "loop_rate_fps": 30,
       "loop_sleep_seconds": 0.033
+    },
+    "prediction":{
+      "wildfire_dataset_path": "C:\\Users\\viaan\\Downloads\\workstation\\basef2026\\wildfire-detection5-old\\wildfire-detection5\\prediction\\data\\output\\wildfire_dataset.csv",
+      "model_path": "C:/Users/viaan/Downloads/workstation/basef2026/wildfire-detection5-old/wildfire-detection5/prediction/wildfire_model.pkl",
+      "output_path": "C:/Users/viaan/Downloads/workstation/basef2026/wildfire-detection5-old/wildfire-detection5/prediction/data/output/fire_risk_map.csv",
+      "dataset_bounding_box": [[42.0, 83.0], [-141.0, -52.0]],
+      "grid_step":1.0,
+      "max_workers":3,
+      "batch_size":50,
+      "dataset_generation":{
+        "start_year":2018,
+        "end_year":2024,
+        "nrows":2000,
+        "samples_per_year":150
+      }
     }
   }
 }

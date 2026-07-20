@@ -3,12 +3,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 import joblib
+import json
+
+# Load config
+with open('../config.json', 'r') as file:
+    config = json.load(file)
 
 # Load dataset
-df = pd.read_csv("data/wildfire_dataset.csv")
+df = pd.read_csv(config["server"]["prediction"]["wildfire_dataset_path"])
 
 # -----------------------
-# FEATURES
+# FEATURES (UPDATED TO MATCH DATASET)
 # -----------------------
 FEATURES = [
     "latitude",
@@ -18,7 +23,7 @@ FEATURES = [
     "wind",
     "rain",
     "day_of_year",
-    "vegetation_index"
+    "soil_moisture"  # <-- Changed from vegetation_index to match your real data column
 ]
 
 # Drop rows with missing values in features or target
@@ -85,5 +90,5 @@ else:
     print("Skipping classification report (only 1 class present in training data).")
 
 # Save
-joblib.dump(model, "wildfire_model.pkl")
+joblib.dump(model, config["server"]["prediction"]["model_path"])
 print("Model saved.")
