@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 from global_land_mask import globe
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # -----------------------
 # CONFIGURATION
@@ -15,7 +16,7 @@ with open("../config.json") as file:
     dataset_generation_config = config["server"]["prediction"]["dataset_generation"] 
     
 OUTPUT_PATH = config["server"]["prediction"]["wildfire_dataset_path"]
-SAMPLES_PER_YEAR = dataset_generation_config["samples_per_year"]  # Positive samples to pick per year (keeps API usage reasonable)
+SAMPLES_PER_YEAR = dataset_generation_config["samples_per_year"]  # Positive samples to pick per year
 
 # Canada Bounding Box
 bounds = config["server"]["prediction"]["dataset_bounding_box"]
@@ -28,21 +29,17 @@ LON_MIN, LON_MAX = bounds[1]
 def get_year_range():
     print("--- FIRMS Dataset Generation Setup ---")
     return dataset_generation_config["start_year"], dataset_generation_config["end_year"]
+
 # -----------------------
-# DYNAMIC FILE LOADER
+# DYNAMIC FILE LOADER (FIXED TO FILTER OUT TYPE 2/3 ANOMALIES)
 # -----------------------
 def load_firms_data(start_year, end_year):
-    """
-    Attempts to load files for each year. 
-    Looks for yearly files first (e.g., data/firms_2018.csv),
-    then falls back to filtering a shared file (data/firms_active_fires.csv).
-    """
     dfs = []
     for year in range(start_year, end_year + 1):
         paths_to_try = [
             f"data/input/firms/viirs-jpss1_{year}_Canada.csv",
             f"data/firms_active_fires_{year}.csv",
-            "data/firms_active_fires.csv"  # Consolidated file containing multiple years
+            f"data/firms_active_fires.csv"
         ]
         
         loaded = False
@@ -52,7 +49,19 @@ def load_firms_data(start_year, end_year):
                     df = pd.read_csv(path)
                     df.columns = [col.strip().lower() for col in df.columns]
                     
-                    # Parse dates to ensure accurate year filtering
+                    # --- FIX STAGE: Filter out static land sources / volcanic anomalies ---
+                    # Type 0 = Vegetation fire. Type 1 = Active volcano. Type 2 = Static land source. Type 3 = Offshore.
+                    # We cast to numeric just in case types are read as mixed string/float types.
+                    if "type" in df.columns:
+                        df["type"] = pd.to_numeric(df["type"], errors="coerce")
+                        initial_count = len(df)
+                        # Keep only Type 0 (wildfires) or NaN values if type wasn't captured
+                        df = df[(df["type"] == 0) | (df["type"].isna())]
+                        filtered_count = initial_count - len(df)
+                        if filtered_count > 0:
+                            print(f"Filtered out {filtered_count} static/volcanic (Type 2+) anomalies from {year} data.")
+                    # ---------------------------------------------------------------------
+
                     df["acq_datetime"] = pd.to_datetime(df["acq_date"])
                     df_year = df[df["acq_datetime"].dt.year == year].copy()
                     
@@ -73,123 +82,136 @@ def load_firms_data(start_year, end_year):
     return pd.concat(dfs, ignore_index=True)
 
 # -----------------------
-# VEGETATION PROXY
-# -----------------------
-def vegetation_proxy(lat, lon):
-    if lat > 65:
-        return np.random.uniform(0.1, 0.3)
-    elif lat > 55:
-        return np.random.uniform(0.3, 0.6)
-    else:
-        return np.random.uniform(0.6, 0.9)
-# -----------------------
-# GENERATE NEGATIVE CASES (UPDATED)
+# GENERATE NEGATIVE CASES
 # -----------------------
 def generate_negatives(target_count, df_firms, start_year, end_year):
     """
-    Generates negative (non-fire) cases by picking completely random dates and 
-    locations inside Canada, ensuring they are on land and far away from any 
-    recorded active fires on that day.
+    Vectorized, high-speed negative case generator.
+    Generates thousands of coordinates and dates simultaneously using NumPy.
     """
-    negatives = []
-    attempts = 0
-    max_attempts = target_count * 10  # Prevent infinite loop if constraints are too tight
+    print(f"Generating {target_count} safe, independent negative cases via vectorized arrays...")
     
-    print(f"Generating {target_count} safe, independent negative cases...")
-
-    # Pre-parse dates in the master dataset for lightning-fast lookups
+    # 1. Pre-hash fire coordinates by day to allow fast set lookups instead of scanning dataframes
     df_firms['acq_date_str'] = df_firms['acq_datetime'].dt.strftime("%Y-%m-%d")
+    fire_map = {}
+    for date_str, group in df_firms.groupby("acq_date_str"):
+        # We round to 1 decimal place to create an easy, fast grid mask of nearby fires
+        fire_map[date_str] = set(zip(np.round(group["latitude"], 1), np.round(group["longitude"], 1)))
 
-    while len(negatives) < target_count and attempts < max_attempts:
-        attempts += 1
-        print(f"\033c{round((len(negatives)/target_count)*100, 2)}% complete", flush=True)
+    negatives = []
+    
+    # Generate a massive overhead pool of points to process in fast, batch-sized chunks
+    oversample_factor = 3
+    chunk_size = target_count * oversample_factor
+    
+    while len(negatives) < target_count:
+        # Generate random coordinates in bulk using fast C-arrays
+        lats = np.random.uniform(LAT_MIN, LAT_MAX, size=chunk_size)
+        lons = np.random.uniform(LON_MIN, LON_MAX, size=chunk_size)
         
-        # 1. Generate a random date STRICTLY within fire season (April to Sept)
-        year = np.random.randint(start_year, end_year + 1)
+        # Generate random calendar days strictly inside fire season (Days 92 to 273)
+        random_days = np.random.randint(92, 274, size=chunk_size)
+        years = np.random.randint(start_year, end_year + 1, size=chunk_size)
         
-        # Pick a random day of the year between day 92 (April 2) and day 273 (Sept 30)
-        random_day = np.random.randint(92, 274)
-        random_date = datetime.strptime(f"{year}-{random_day}", "%Y-%j")
-        random_date_str = random_date.strftime("%Y-%m-%d")
-
-        # 2. Generate a random location in Canada
-        neg_lat = round(np.random.uniform(LAT_MIN, LAT_MAX), 4)
-        neg_lon = round(np.random.uniform(LON_MIN, LON_MAX), 4)
-
-        # 3. Validation checks
-        # Check A: Must be on land
-        if not globe.is_land(neg_lat, neg_lon):
-            continue
-
-        # Check B: Make sure it is safe (no active fires nearby on this date)
-        # Filter master data to just this day
-        day_fires = df_firms[df_firms["acq_date_str"] == random_date_str]
-        
-        if not day_fires.empty:
-            # Check if any fire coordinates on this day are within a 0.5 degree (~55km) buffer zone
-            too_close = any(
-                abs(neg_lat - f_lat) < 0.5 and abs(neg_lon - f_lon) < 0.5 
-                for f_lat, f_lon in zip(day_fires["latitude"], day_fires["longitude"])
-            )
-            if too_close:
-                continue  # Skip and try again, too risky!
-
-        # If it passes all checks, it's a safe negative
-        negatives.append({
-            "latitude": neg_lat,
-            "longitude": neg_lon,
-            "acq_date": random_date_str,
-            "fire": 0
-        })
-
-    if len(negatives) < target_count:
-        print(f"Warning: Could only generate {len(negatives)} negatives out of {target_count} requested.")
-
+        for i in range(chunk_size):
+            if len(negatives) >= target_count:
+                break
+                
+            lat, lon = lats[i], lons[i]
+            
+            # Fast landmask filter
+            if not globe.is_land(lat, lon):
+                continue
+                
+            # Build string date cleanly
+            dt = datetime.strptime(f"{years[i]}-{random_days[i]}", "%Y-%j")
+            date_str = dt.strftime("%Y-%m-%d")
+            
+            # Instant dictionary-set proximity verification
+            if date_str in fire_map:
+                # Round current random coordinate to check if a fire occurred in the general area
+                coord_key = (round(lat, 1), round(lon, 1))
+                if coord_key in fire_map[date_str]:
+                    continue  # Too close to an active fire grid section!
+            
+            negatives.append({
+                "latitude": round(lat, 4),
+                "longitude": round(lon, 4),
+                "acq_date": date_str,
+                "fire": 0
+            })
+            
+    print("Finished Negative Generation successfully.")
     return pd.DataFrame(negatives)
 
 # -----------------------
-# HISTORICAL WEATHER FETCH
+# HISTORICAL WEATHER FETCH (THREAD-SAFE WRAPPER)
 # -----------------------
-def fetch_historical_weather_with_vegetation(date_str, coords):
+def process_date_group(date_str, group):
     """
-    Fetches historical weather AND real land/vegetation metrics (LAI and Soil Moisture)
-    for a given date and coordinate set in a single API request.
+    Worker function executed by individual threads. Handles the API request
+    and parsing for a specific date group.
     """
+    coords = list(zip(group["latitude"], group["longitude"]))
     lats = [c[0] for c in coords]
     lons = [c[1] for c in coords]
     
     url = "https://archive-api.open-meteo.com/v1/archive"
-    
-    # We append leaf_area_index and soil_moisture_0_to_7cm directly to daily aggregations
     params = {
         "latitude": ",".join(map(str, lats)),
         "longitude": ",".join(map(str, lons)),
         "start_date": date_str,
         "end_date": date_str,
-        "daily": (
-            "temperature_2m_mean,"
-            "relative_humidity_2m_mean,"
-            "wind_speed_10m_max,"
-            "precipitation_sum,"
-            "soil_moisture_0_to_7cm_mean"  # <-- Fixed: suffix instead of prefix
-        ),
+        "daily": "temperature_2m_mean,relative_humidity_2m_mean,wind_speed_10m_max,precipitation_sum,soil_moisture_0_to_7cm_mean",
         "timezone": "UTC"
     }
 
+    records = []
     try:
+        # Reduced sleep since threads spread requests naturally; 
+        # Open-Meteo allows heavy concurrency without aggressive blocks
+        time.sleep(0.02) 
         response = requests.get(url, params=params, timeout=30)
+        
         if response.status_code == 200:
             data = response.json()
             if isinstance(data, dict):
                 data = [data]
-            return data
+                
+            for idx, entry in enumerate(data):
+                daily = entry.get("daily", {})
+                if not daily:
+                    continue
+                
+                temp = daily.get("temperature_2m_mean", [None])[0]
+                humidity = daily.get("relative_humidity_2m_mean", [None])[0]
+                wind = daily.get("wind_speed_10m_max", [None])[0]
+                rain = daily.get("precipitation_sum", [None])[0]
+                soil_moisture = daily.get("soil_moisture_0_to_7cm_mean", [None])[0]
+                
+                row = group.iloc[idx]
+                dt = datetime.strptime(date_str, "%Y-%m-%d")
+                day_of_year = dt.timetuple().tm_yday
+                
+                records.append({
+                    "latitude": row["latitude"],
+                    "longitude": row["longitude"],
+                    "temp": temp,
+                    "humidity": humidity,
+                    "wind": wind,
+                    "rain": rain,
+                    "day_of_year": day_of_year,
+                    "soil_moisture": soil_moisture,
+                    "fire": row["fire"]
+                })
+            return records
         else:
-            print(f"API Error {response.status_code} for date {date_str}")
-            return None
+            print(f"  [!] API Error {response.status_code} for date {date_str}")
+            return []
     except Exception as e:
-        print(f"Request failed for date {date_str}: {e}")
-        return None
-    
+        print(f"  [!] Request failed for date {date_str}: {e}")
+        return []
+
 # -----------------------
 # MAIN RUNNER
 # -----------------------
@@ -203,7 +225,6 @@ def main():
         print("No training data could be loaded. Ensure the files exist in the data/ folder.")
         return
         
-    # Apply spatial bounding box filter
     df_firms = df_firms[
         (df_firms["latitude"] >= LAT_MIN) & (df_firms["latitude"] <= LAT_MAX) &
         (df_firms["longitude"] >= LON_MIN) & (df_firms["longitude"] <= LON_MAX)
@@ -213,7 +234,6 @@ def main():
         print("No coordinates matched the regional boundaries.")
         return
 
-    # Sample equally per year to maintain historical balance
     sampled_dfs = []
     for year, group in df_firms.groupby(df_firms["acq_datetime"].dt.year):
         sample_n = min(SAMPLES_PER_YEAR, len(group))
@@ -221,70 +241,49 @@ def main():
         
     df_positives = pd.concat(sampled_dfs, ignore_index=True)
     df_positives["fire"] = 1
-    
-    # Cast dates back to clean string representation
     df_positives["acq_date"] = df_positives["acq_datetime"].dt.strftime("%Y-%m-%d")
     
     print(f"\nSampled {len(df_positives)} active fire cases across the selected period.")
     
-    print("Generating non-fire (negative) cases...")
-    # Pass the required target count, the full firms dataframe, and year ranges
     df_negatives = generate_negatives(len(df_positives), df_firms, start_year, end_year)
     print(f"Generated {len(df_negatives)} non-fire cases.")
 
-    # Combine positive and negative cases
     df_combined = pd.concat([
         df_positives[["latitude", "longitude", "acq_date", "fire"]],
         df_negatives
     ], ignore_index=True)
 
-    print("\nFetching weather parameters from Open-Meteo...")
+    print("\nFetching weather parameters from Open-Meteo using multi-threading...")
     weather_records = []
-    grouped_by_date = df_combined.groupby("acq_date")
+    grouped_by_date = list(df_combined.groupby("acq_date"))
     total_dates = len(grouped_by_date)
     
-    for i, (date_str, group) in enumerate(grouped_by_date, 1):
-        coords = list(zip(group["latitude"], group["longitude"]))
-        print(f"[{i}/{total_dates}] Weather query for {date_str} ({len(coords)} coordinates)...")
+    # We use a pool of 5 to 8 workers. Open-Meteo is very fast, so 5 concurrent 
+    # workers will easily saturate the pipeline without overwhelming local sockets.
+    completed_threads = 0
+    start_time = time.time()
+    
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        # Submit all unique date lookups to the pool concurrently
+        futures = {
+            executor.submit(process_date_group, date_str, group): date_str 
+            for date_str, group in grouped_by_date
+        }
         
-        # ... inside your weather parsing loop where you extract entries:
-        weather_data = fetch_historical_weather_with_vegetation(date_str, coords)
-        
-        if weather_data:
-            for idx, entry in enumerate(weather_data):
-                daily = entry.get("daily", {})
-                
-                # Standard weather features
-                temp = daily.get("temperature_2m_mean", [None])[0]
-                humidity = daily.get("relative_humidity_2m_mean", [None])[0]
-                wind = daily.get("wind_speed_10m_max", [None])[0]
-                rain = daily.get("precipitation_sum", [None])[0]
-                
-                # Extract the corrected soil moisture string
-                soil_moisture = daily.get("soil_moisture_0_to_7cm_mean", [None])[0]
-                
-                row = group.iloc[idx]
-                dt = datetime.strptime(date_str, "%Y-%m-%d")
-                day_of_year = dt.timetuple().tm_yday
-                
-                weather_records.append({
-                    "latitude": row["latitude"],
-                    "longitude": row["longitude"],
-                    "temp": temp,
-                    "humidity": humidity,
-                    "wind": wind,
-                    "rain": rain,
-                    "day_of_year": day_of_year,
-                    "soil_moisture": soil_moisture, # Real fuel dryness tracker
-                    "fire": row["fire"]
-                })
-                
-        # Respect Open-Meteo API limits
-        time.sleep(0.05)
+        # As threads complete, safely aggregate results back to main thread array
+        for future in as_completed(futures):
+            completed_threads += 1
+            result = future.result()
+            if result:
+                weather_records.extend(result)
+            
+            if completed_threads % 10 == 0 or completed_threads == total_dates:
+                print(f"  Progress: {completed_threads}/{total_dates} date batches processed...", end="\r")
 
     # Convert to DataFrame
     final_df = pd.DataFrame(weather_records).dropna()
     
+    print(f"\nWeather extraction completed in {round(time.time() - start_time, 2)} seconds.")
     print(f"\nFinal training dataset class breakdown:")
     print(final_df["fire"].value_counts())
     
