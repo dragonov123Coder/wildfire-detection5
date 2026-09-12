@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alberta Wildfire Risk Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --border:         rgba(11,11,11,0.10);
+    --accent:         #c14d22;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --surface-2:      #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --border:         rgba(255,255,255,0.10);
+      --accent:         #ec8a4a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--surface-2);
+    color: var(--text-primary);
+  }
+  #app { display: flex; flex-direction: column; height: 100%; }
+  header {
+    padding: 12px 16px;
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  #body { flex: 1; display: flex; min-height: 0; }
+  #sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .panel { display: flex; flex-direction: column; gap: 8px; }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  .stat-row .k { color: var(--text-secondary); }
+  .stat-row .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+  #sidebar label.toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--surface-2);
+    font-size: 13px;
+  }
+  #sidebar label.toggle input { margin: 0; }
+  #sidebar label.file-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    background: var(--surface-2);
+    font-size: 13px;
+    text-align: center;
+  }
+  #sidebar label.file-btn input[type="file"] { display: none; }
+  #load-status { font-size: 12px; color: var(--text-secondary); min-height: 14px; }
+  #forecast-panel input[type="date"] {
+    width: 100%;
+    padding: 7px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  #regenerate-btn {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #regenerate-btn:disabled { opacity: 0.5; cursor: default; }
+  #regenerate-status { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+  #forecast-hint { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  #main { flex: 1; position: relative; min-height: 0; }
+  #map { position: absolute; inset: 0; }
+  #empty-state {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px;
+    background: var(--surface-2);
+    z-index: 500;
+    text-align: center;
+    padding: 24px;
+  }
+  #empty-state p { max-width: 420px; color: var(--text-secondary); font-size: 14px; margin: 0; }
+  #legend {
+    position: absolute; bottom: 24px; right: 12px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    z-index: 400;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #legend .title { font-weight: 600; margin-bottom: 6px; color: var(--text-primary); }
+  #legend .ramp { display: flex; height: 10px; width: 180px; border-radius: 3px; overflow: hidden; }
+  #legend .ramp div { flex: 1; }
+  #legend .scale-labels { display: flex; justify-content: space-between; margin-top: 4px; color: var(--text-muted); }
+  .leaflet-popup-content { font-size: 13px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .leaflet-popup-content b { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Alberta Wildfire Risk Map</h1>
+  </header>
+  <div id="body">
+    <div id="sidebar">
+      <div class="panel">
+        <div class="panel-title">Data</div>
+        <div class="stat-row"><span class="k">Cells</span><span class="v" id="sidebar-cells">&mdash;</span></div>
+        <div class="stat-row"><span class="k">Date</span><span class="v" id="sidebar-date">&mdash;</span></div>
+        <div class="stat-row"><span class="k">Range</span><span class="v" id="sidebar-range">&mdash;</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Display</div>
+        <label class="toggle">
+          <input type="checkbox" id="calibration-toggle" checked />
+          Output calibration
+        </label>
+        <label class="file-btn">
+          <input type="file" id="file-input" accept=".csv" />
+          Load risk_map.csv
+        </label>
+        <div id="load-status"></div>
+      </div>
+
+      <div class="panel" id="forecast-panel">
+        <div class="panel-title">Forecast</div>
+        <input type="date" id="forecast-date" />
+        <button id="regenerate-btn">Regenerate</button>
+        <div id="regenerate-status"></div>
+        <div id="forecast-hint"></div>
+      </div>
+    </div>
+    <div id="main">
+      <div id="map"></div>
+      <div id="empty-state">
+        <p><strong>No risk data loaded.</strong> Use "Load risk_map.csv" in the
+        sidebar and select the CSV produced by <code>scripts/predict.py</code>
+        (expects columns: cell_id, lat, lon, risk_score, risk_score_raw, FWI, date).</p>
+      </div>
+      <div id="legend" style="display:none">
+        <div class="title" id="legend-title">Fire risk score</div>
+        <div class="ramp" id="ramp"></div>
+        <div class="scale-labels"><span id="scale-min">0</span><span id="scale-max">1</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Sequential single-hue ramp (light -> dark), lightness-monotonic.
+// Low risk reads as pale/receding; high risk as saturated dark red-orange.
+const RAMP = [
+  "#fdead9", "#fbdcc0", "#f9cba3", "#f6b884", "#f2a466",
+  "#ec8a4a", "#eb6834", "#d85a2a", "#c14d22", "#a5401b",
+  "#833014", "#63220d",
+];
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function colorForRisk(value, min, max) {
+  if (value === null || value === undefined || isNaN(value)) return "#999999";
+  const t = max > min ? Math.max(0, Math.min(1, (value - min) / (max - min))) : 0;
+  const scaled = t * (RAMP.length - 1);
+  const i0 = Math.floor(scaled);
+  const i1 = Math.min(RAMP.length - 1, i0 + 1);
+  const frac = scaled - i0;
+  const c0 = hexToRgb(RAMP[i0]);
+  const c1 = hexToRgb(RAMP[i1]);
+  const r = Math.round(lerp(c0[0], c1[0], frac));
+  const g = Math.round(lerp(c0[1], c1[1], frac));
+  const b = Math.round(lerp(c0[2], c1[2], frac));
+  return `rgb(${r},${g},${b})`;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines[0].split(",").map((h) => h.trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i]) continue;
+    const cells = lines[i].split(",");
+    const row = {};
+    header.forEach((h, idx) => (row[h] = cells[idx] !== undefined ? cells[idx].trim() : ""));
+    rows.push({
+      cell_id: row.cell_id,
+      lat: parseFloat(row.lat),
+      lon: parseFloat(row.lon),
+      risk_score: row.risk_score === "" || row.risk_score === undefined ? NaN : parseFloat(row.risk_score),
+      risk_score_raw: row.risk_score_raw === "" || row.risk_score_raw === undefined ? NaN : parseFloat(row.risk_score_raw),
+      fwi: row.FWI !== undefined ? parseFloat(row.FWI) : NaN,
+      date: row.date || "",
+    });
+  }
+  return rows;
+}
+
+let map = null;
+let markerLayer = null;
+let currentRows = [];
+
+// Server integration (regenerate + auto-load) only exists when this page is
+// served by the Flask app's /prediction route; opened as a bare file:// page
+// there is no backend to call, so those features quietly disable themselves.
+const SERVER_MODE = location.protocol !== "file:";
+
+function calibrationEnabled() {
+  return document.getElementById("calibration-toggle").checked;
+}
+
+// With calibration on, use the corrected probability (risk_score); off, use
+// the model's raw uncorrected output (risk_score_raw) -- useful for seeing
+// the model's underlying discriminative signal before it's scaled back down
+// to reflect how rare fire actually is in the real world.
+function activeValue(r) {
+  return calibrationEnabled() ? r.risk_score : r.risk_score_raw;
+}
+
+function initMap() {
+  map = L.map("map", { preferCanvas: true }).setView([55.0, -115.0], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+    maxZoom: 12,
+  }).addTo(map);
+}
+
+function updateLegend(min, max) {
+  const legend = document.getElementById("legend");
+  const ramp = document.getElementById("ramp");
+  ramp.innerHTML = "";
+  RAMP.forEach((hex) => {
+    const div = document.createElement("div");
+    div.style.background = hex;
+    ramp.appendChild(div);
+  });
+  document.getElementById("scale-min").textContent = min.toFixed(3);
+  document.getElementById("scale-max").textContent = max.toFixed(3);
+  legend.style.display = "block";
+}
+
+function renderRows(rows) {
+  currentRows = rows;
+  document.getElementById("empty-state").style.display = "none";
+  if (!map) initMap();
+  if (markerLayer) markerLayer.remove();
+
+  const calibrated = calibrationEnabled();
+  const values = rows.map(activeValue).filter((v) => !isNaN(v));
+  const min = values.length ? Math.min(...values) : 0;
+  const max = values.length ? Math.max(...values) : 1;
+
+  const layerGroup = L.layerGroup();
+  rows.forEach((r) => {
+    if (isNaN(r.lat) || isNaN(r.lon)) return;
+    const marker = L.circleMarker([r.lat, r.lon], {
+      radius: 6,
+      fillColor: colorForRisk(activeValue(r), min, max),
+      fillOpacity: 0.85,
+      stroke: false,
+    });
+    marker.bindPopup(
+      `<b>Cell ${r.cell_id}</b><br>` +
+      `Calibrated risk: <b>${isNaN(r.risk_score) ? "n/a" : r.risk_score.toFixed(4)}</b><br>` +
+      `Raw model output: <b>${isNaN(r.risk_score_raw) ? "n/a" : r.risk_score_raw.toFixed(4)}</b><br>` +
+      `FWI: <b>${isNaN(r.fwi) ? "n/a" : r.fwi.toFixed(1)}</b><br>` +
+      `Lat/Lon: ${r.lat.toFixed(3)}, ${r.lon.toFixed(3)}`
+    );
+    layerGroup.addLayer(marker);
+  });
+  markerLayer = layerGroup.addTo(map);
+
+  document.getElementById("legend-title").textContent = calibrated ? "Fire risk score (calibrated)" : "Raw model output (uncalibrated)";
+  updateLegend(min, max);
+
+  document.getElementById("sidebar-cells").textContent = String(rows.length);
+  document.getElementById("sidebar-date").textContent = rows[0] && rows[0].date ? rows[0].date : "unknown";
+  document.getElementById("sidebar-range").textContent =
+    `${min.toFixed(3)}–${max.toFixed(3)} (${calibrated ? "risk" : "raw"})`;
+
+  const bounds = rows.filter((r) => !isNaN(r.lat) && !isNaN(r.lon)).map((r) => [r.lat, r.lon]);
+  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
+}
+
+function loadFile(file) {
+  const status = document.getElementById("load-status");
+  status.textContent = "Loading...";
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const rows = parseCSV(e.target.result);
+      renderRows(rows);
+      status.textContent = "";
+    } catch (err) {
+      status.textContent = "Failed to parse CSV: " + err.message;
+    }
+  };
+  reader.onerror = () => (status.textContent = "Failed to read file.");
+  reader.readAsText(file);
+}
+
+document.getElementById("file-input").addEventListener("change", (e) => {
+  if (e.target.files.length) loadFile(e.target.files[0]);
+});
+
+document.getElementById("calibration-toggle").addEventListener("change", () => {
+  if (currentRows.length) renderRows(currentRows);
+});
+
+// Auto-load the current risk map when served by the Flask app (same-origin
+// API route, not the raw ../data/... relative path a bare static file would
+// need -- this page's URL depth can vary depending on how it's mounted).
+if (SERVER_MODE) {
+  fetch("/api/prediction/data")
+    .then((r) => (r.ok ? r.text() : Promise.reject()))
+    .then((text) => renderRows(parseCSV(text)))
+    .catch(() => {});
+}
+
+// --- Forecast / regenerate ---
+const forecastDateInput = document.getElementById("forecast-date");
+const regenerateBtn = document.getElementById("regenerate-btn");
+const regenerateStatus = document.getElementById("regenerate-status");
+const forecastHint = document.getElementById("forecast-hint");
+
+(function () {
+  const today = new Date().toISOString().slice(0, 10);
+  forecastDateInput.min = today;
+  forecastDateInput.value = today;
+})();
+
+if (!SERVER_MODE) {
+  forecastDateInput.disabled = true;
+  regenerateBtn.disabled = true;
+  forecastHint.textContent = "Regeneration needs the integrated server -- open this page at /prediction instead of as a local file.";
+} else {
+  forecastHint.textContent = "Short-range dates (within ~1 week) are most reliable. Soil moisture and weather forecasts both degrade further out.";
+}
+
+regenerateBtn.addEventListener("click", async () => {
+  const date = forecastDateInput.value;
+  if (!date) {
+    regenerateStatus.textContent = "Pick a date first.";
+    return;
+  }
+  regenerateBtn.disabled = true;
+  forecastDateInput.disabled = true;
+  regenerateStatus.textContent = "Regenerating… this can take a few minutes.";
+  try {
+    const resp = await fetch("/api/prediction/regenerate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date }),
+    });
+    const body = await resp.json().catch(() => ({}));
+    if (!resp.ok || !body.ok) {
+      regenerateStatus.textContent = "Failed: " + (body.error || resp.statusText);
+    } else {
+      regenerateStatus.textContent = `Done — ${body.rows} cells for ${body.date}.`;
+      const csvResp = await fetch("/api/prediction/data");
+      if (csvResp.ok) renderRows(parseCSV(await csvResp.text()));
+    }
+  } catch (err) {
+    regenerateStatus.textContent = "Request failed: " + err.message;
+  } finally {
+    regenerateBtn.disabled = false;
+    forecastDateInput.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

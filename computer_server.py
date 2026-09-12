@@ -8,13 +8,14 @@ import time
 import json
 import socket
 import struct
+import subprocess
 import numpy as np
 import cv2
 from threading import Thread, Lock
 from datetime import datetime
 from pathlib import Path
 import logging
-from flask import Flask, render_template, jsonify, send_file
+from flask import Flask, render_template, jsonify, send_file, request
 from ultralytics import YOLO
 import base64
 
@@ -49,6 +50,15 @@ def load_config(config_path='config.json'):
 
 
 CONFIG = load_config()
+
+# Paths for the fire-risk prediction sub-app (prediction-2/), resolved from
+# this file's own location so they don't depend on the server's cwd.
+BASE_DIR = Path(__file__).resolve().parent
+PREDICTION_ROOT = BASE_DIR / 'prediction-2'
+PREDICTION_PYTHON = PREDICTION_ROOT / 'venv' / 'Scripts' / 'python.exe'
+PREDICTION_SCRIPT = PREDICTION_ROOT / 'scripts' / 'predict.py'
+PREDICTION_RISK_CSV = PREDICTION_ROOT / 'data' / 'output' / 'risk_map.csv'
+PREDICTION_HTML = PREDICTION_ROOT / 'output' / 'risk_map.html'
 
 
 class ThermalProcessor:
@@ -508,14 +518,59 @@ class WildfireServer:
         def index():
             return render_template('index.html')
         
-        @self.app.route('/dashboard')
-        def dashboard():
+        @self.app.route('/monitor')
+        def monitor():
             return render_template('dashboard.html')
-        
+
         @self.app.route('/prediction')
         def prediction():
-            return send_file('prediction/site.html')
-        
+            return send_file(str(PREDICTION_HTML))
+
+        @self.app.route('/api/prediction/data')
+        def prediction_data():
+            """Serve the current risk_map.csv for the /prediction viewer."""
+            if not PREDICTION_RISK_CSV.exists():
+                return jsonify({'error': 'no risk map generated yet'}), 404
+            return send_file(str(PREDICTION_RISK_CSV), mimetype='text/csv')
+
+        @self.app.route('/api/prediction/regenerate', methods=['POST'])
+        def prediction_regenerate():
+            """Rerun prediction-2/scripts/predict.py for a given date and
+            report back once it finishes. Runs synchronously (Flask's dev
+            server is threaded, so this only blocks the calling request)."""
+            body = request.get_json(silent=True) or {}
+            date_str = body.get('date', '')
+            try:
+                datetime.strptime(date_str, '%Y-%m-%d')
+            except ValueError:
+                return jsonify({'ok': False, 'error': 'date must be in YYYY-MM-DD format'}), 400
+
+            logger.info(f"Regenerating fire risk prediction for {date_str}")
+            try:
+                result = subprocess.run(
+                    [str(PREDICTION_PYTHON), str(PREDICTION_SCRIPT), '--date', date_str],
+                    cwd=str(PREDICTION_ROOT),
+                    capture_output=True,
+                    text=True,
+                    timeout=900,
+                )
+            except subprocess.TimeoutExpired:
+                return jsonify({'ok': False, 'error': 'predict.py timed out after 15 minutes'}), 504
+
+            if result.returncode != 0:
+                err = result.stderr.strip()[-1500:] or 'predict.py failed with no error output'
+                logger.error(f"predict.py failed for {date_str}: {err}")
+                return jsonify({'ok': False, 'error': err}), 500
+
+            row_count = None
+            try:
+                with open(PREDICTION_RISK_CSV) as f:
+                    row_count = sum(1 for _ in f) - 1
+            except OSError:
+                pass
+
+            return jsonify({'ok': True, 'date': date_str, 'rows': row_count})
+
         @self.app.route('/api/images')
         def get_images():
             """Return latest RGB and thermal images as base64"""

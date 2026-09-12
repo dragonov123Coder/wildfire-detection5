@@ -1,0 +1,57 @@
+{
+  "region": {
+    "name": "Alberta",
+    "bbox": {
+      "lat_min": 49.0,
+      "lat_max": 60.0,
+      "lon_min": -120.0,
+      "lon_max": -110.0
+    },
+    "projected_crs": "EPSG:3400"
+  },
+  "grid": {
+    "resolution_m": 50000
+  },
+  "dates": {
+    "train_start": "2018-01-01",
+    "train_end": "2024-12-31",
+    "temporal_split": {
+      "train_end": "2022-12-31",
+      "val_end": "2023-12-31",
+      "test_start": "2024-01-01"
+    },
+    "fire_season_start_mmdd": "03-01",
+    "fire_season_end_mmdd": "11-30"
+  },
+  "fwi_startup": {
+    "ffmc": 85,
+    "dmc": 6,
+    "dc": 15
+  },
+  "paths": {
+    "grid_csv": "data/grid/grid.csv",
+    "static_features_csv": "data/processed/static_features.csv",
+    "weather_cache_csv": "data/input/weather_cache.csv",
+    "soil_moisture_cache_csv": "data/input/soil_moisture_cache.csv",
+    "fwi_daily_csv": "data/processed/fwi_daily.csv",
+    "firms_dir": "data/input/firms",
+    "fuel_type_raster": "data/input/fuel_type_canada_30m.tif",
+    "dem_tiles_dir": "data/input/dem_tiles",
+    "training_dataset_csv": "data/processed/training_dataset.csv",
+    "model_path": "data/output/model.txt",
+    "risk_map_csv": "data/output/risk_map.csv"
+  },
+  "training": {
+    "negative_downsample_ratio": 30,
+    "n_positive_samples": 1000,
+    "positive_negative_ratio": 1.0,
+    "random_seed": 42
+  },
+  "apis": {
+    "open_meteo_archive_url": "https://archive-api.open-meteo.com/v1/archive",
+    "open_meteo_forecast_url": "https://api.open-meteo.com/v1/forecast",
+    "nasa_power_url": "https://power.larc.nasa.gov/api/temporal/daily/point",
+    "max_locations_per_batch": 50,
+    "max_concurrent_requests": 3
+  }
+}
