@@ -147,12 +147,13 @@ def predict(target_date, config=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", default=pd.Timestamp.today().strftime("%Y-%m-%d"))
+    parser.add_argument("--out", default=None, help="Output CSV path (defaults to config paths.risk_map_csv)")
     args = parser.parse_args()
 
     config = load_config()
     result = predict(args.date, config)
 
-    out_path = ROOT / config["paths"]["risk_map_csv"]
+    out_path = Path(args.out) if args.out else ROOT / config["paths"]["risk_map_csv"]
     out_path.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(out_path, index=False)
     print(f"Wrote risk map for {args.date} to {out_path} ({len(result)} cells)")

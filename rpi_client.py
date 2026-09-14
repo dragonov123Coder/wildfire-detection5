@@ -229,10 +229,11 @@ class ThermalCamera:
 
 class DataTransmitter:
     """Handles network transmission of camera data to computer"""
-    
-    def __init__(self, server_host, server_port):
+
+    def __init__(self, server_host, server_port, unit_id):
         self.server_host = server_host
         self.server_port = server_port
+        self.unit_id = unit_id
         self.socket = None
     
     def connect(self):
@@ -259,6 +260,7 @@ class DataTransmitter:
                 'has_rgb': rgb_frame is not None,
                 'has_thermal': thermal_frame is not None,
                 'gps_data': gps_data,
+                'unit_id': self.unit_id,
             }
             
             # Serialize RGB frame
@@ -315,11 +317,12 @@ class WildfireClient:
         self.server_host = net_config['server_host']
         self.server_port = net_config['server_port']
         self.retry_interval = net_config['retry_interval_seconds']
-        
+        self.unit_id = config['client']['unit_id']
+
         self.rgb_camera = RGBCamera(config)
         self.thermal_camera = ThermalCamera(config)
         self.gps = GPS(config)
-        self.transmitter = DataTransmitter(self.server_host, self.server_port)
+        self.transmitter = DataTransmitter(self.server_host, self.server_port, self.unit_id)
         self.running = False
         self.debug_files = debug_files
     

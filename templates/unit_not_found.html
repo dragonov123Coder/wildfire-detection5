@@ -1,0 +1,26 @@
+{% import '_icons.html' as icons %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit not found</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .box { text-align: center; padding: 40px; }
+        .box .icon { color: var(--text-muted); margin-bottom: 16px; }
+        h1 { font-size: 1.3rem; margin: 0 0 8px; }
+        p { color: var(--text-secondary); margin: 0 0 24px; }
+        code { background: var(--surface-2); padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="box fade-rise">
+        {{ icons.server(40) }}
+        <h1>No unit with id <code>{{ unit_id }}</code></h1>
+        <p>It may have been removed, or the id was mistyped.</p>
+        <a class="btn btn-primary" href="/units">{{ icons.arrow_left(16) }} Back to Unit Manager</a>
+    </div>
+</body>
+</html>

@@ -1,19 +1,24 @@
+{% import '_icons.html' as icons %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wildfire Detection System</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>{{ unit.name }} &middot; Wildfire Detection</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/dashboard.css">
 </head>
-<body>
+<body data-unit-id="{{ unit.unit_id }}">
     <div class="container">
         <header>
-            <h1>Wildfire Detection System</h1>
+            <div class="header-row">
+                <a class="home-link" href="/units">{{ icons.arrow_left(14) }} Units</a>
+                <h1>{{ unit.name }} <span class="unit-id-tag">{{ unit.unit_id }}</span></h1>
+            </div>
             <div class="status-bar">
                 <div class="status-item">
-                    <span class="label">Status:</span>
-                    <span id="status" class="status-indicator">Monitoring</span>
+                    <span class="status-dot" id="conn-dot"></span>
+                    <span id="conn-label">Connecting&hellip;</span>
                 </div>
                 <div class="status-item">
                     <span class="label">Confidence:</span>
@@ -31,9 +36,14 @@
         </header>
 
         <main>
+            <div id="awaiting-banner" class="awaiting-banner" hidden>
+                {{ icons.server(20) }}
+                <span>Awaiting first connection from this unit's Raspberry Pi&hellip;</span>
+            </div>
+
             <div class="video-grid">
                 <div class="video-panel">
-                    <h2>RGB Camera</h2>
+                    <h2>{{ icons.camera(15) }} RGB Camera</h2>
                     <div class="video-container">
                         <img id="rgb-feed" src="" alt="RGB Camera Feed">
                         <div class="no-signal">No Signal</div>
@@ -41,7 +51,7 @@
                 </div>
 
                 <div class="video-panel">
-                    <h2>Thermal Camera</h2>
+                    <h2>{{ icons.thermometer(15) }} Thermal Camera</h2>
                     <div class="video-container">
                         <img id="thermal-feed" src="" alt="Thermal Camera Feed">
                         <div class="no-signal">No Signal</div>
@@ -64,13 +74,12 @@
             </div>
 
             <div class="confidence-panel">
-                <h2>Detection Breakdown</h2>
+                <h2>{{ icons.bars(15) }} Detection Breakdown</h2>
                 <div class="confidence-bars">
                     <div class="confidence-item">
                         <span class="conf-label">Thermal:</span>
                         <div class="progress-bar">
                             <div id="thermal-bar" class="progress-fill"></div>
-                            <div id="thermal-peak" class="progress-peak"></div>
                             <div id="thermal-threshold" class="progress-threshold"></div>
                         </div>
                         <span id="thermal-value" class="conf-value">0.00</span>
@@ -79,7 +88,6 @@
                         <span class="conf-label">RGB Fire:</span>
                         <div class="progress-bar">
                             <div id="fire-bar" class="progress-fill"></div>
-                            <div id="fire-peak" class="progress-peak"></div>
                             <div id="fire-threshold" class="progress-threshold"></div>
                         </div>
                         <span id="fire-value" class="conf-value">0.00</span>
@@ -88,7 +96,6 @@
                         <span class="conf-label">RGB Smoke:</span>
                         <div class="progress-bar">
                             <div id="smoke-bar" class="progress-fill"></div>
-                            <div id="smoke-peak" class="progress-peak"></div>
                             <div id="smoke-threshold" class="progress-threshold"></div>
                         </div>
                         <span id="smoke-value" class="conf-value">0.00</span>
@@ -97,7 +104,6 @@
                         <span class="conf-label">Total:</span>
                         <div class="progress-bar">
                             <div id="total-bar" class="progress-fill"></div>
-                            <div id="total-peak" class="progress-peak"></div>
                             <div id="total-threshold" class="progress-threshold"></div>
                         </div>
                         <span id="total-value" class="conf-value">0.00</span>
@@ -111,6 +117,6 @@
         </footer>
     </div>
 
-    <script src="/static/script.js"></script>
+    <script src="/static/unit_dashboard.js"></script>
 </body>
 </html>

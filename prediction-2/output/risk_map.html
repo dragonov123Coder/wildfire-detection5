@@ -102,7 +102,7 @@
   }
   #sidebar label.file-btn input[type="file"] { display: none; }
   #load-status { font-size: 12px; color: var(--text-secondary); min-height: 14px; }
-  #forecast-panel input[type="date"] {
+  #forecast-panel input[type="date"], #date-select {
     width: 100%;
     padding: 7px 8px;
     border: 1px solid var(--border);
@@ -112,6 +112,23 @@
     font-size: 13px;
     font-family: inherit;
   }
+  #date-select { margin-bottom: 8px; }
+  #advanced-details summary {
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-bottom: 6px;
+  }
+  #advanced-details input[type="date"] { margin-bottom: 6px; }
+  #deploy-hint { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+  .deploy-link {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .deploy-link:hover { text-decoration: underline; }
   #regenerate-btn {
     padding: 8px 10px;
     border: 1px solid var(--border);
@@ -184,10 +201,19 @@
 
       <div class="panel" id="forecast-panel">
         <div class="panel-title">Forecast</div>
-        <input type="date" id="forecast-date" />
-        <button id="regenerate-btn">Regenerate</button>
-        <div id="regenerate-status"></div>
+        <select id="date-select"><option value="">Loading dates&hellip;</option></select>
+        <details id="advanced-details">
+          <summary>Regenerate a specific date</summary>
+          <input type="date" id="forecast-date" />
+          <button id="regenerate-btn">Regenerate</button>
+          <div id="regenerate-status"></div>
+        </details>
         <div id="forecast-hint"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Deploy</div>
+        <div id="deploy-hint">Click a point on the map, then use the popup to deploy a detection unit there.</div>
       </div>
     </div>
     <div id="main">
@@ -322,12 +348,14 @@ function renderRows(rows) {
       fillOpacity: 0.85,
       stroke: false,
     });
+    const deployHref = `/units?lat=${r.lat}&lon=${r.lon}`;
     marker.bindPopup(
       `<b>Cell ${r.cell_id}</b><br>` +
       `Calibrated risk: <b>${isNaN(r.risk_score) ? "n/a" : r.risk_score.toFixed(4)}</b><br>` +
       `Raw model output: <b>${isNaN(r.risk_score_raw) ? "n/a" : r.risk_score_raw.toFixed(4)}</b><br>` +
       `FWI: <b>${isNaN(r.fwi) ? "n/a" : r.fwi.toFixed(1)}</b><br>` +
-      `Lat/Lon: ${r.lat.toFixed(3)}, ${r.lon.toFixed(3)}`
+      `Lat/Lon: ${r.lat.toFixed(3)}, ${r.lon.toFixed(3)}<br>` +
+      `<a class="deploy-link" href="${deployHref}">Deploy Unit Here &rarr;</a>`
     );
     layerGroup.addLayer(marker);
   });
@@ -370,17 +398,56 @@ document.getElementById("calibration-toggle").addEventListener("change", () => {
   if (currentRows.length) renderRows(currentRows);
 });
 
-// Auto-load the current risk map when served by the Flask app (same-origin
-// API route, not the raw ../data/... relative path a bare static file would
-// need -- this page's URL depth can vary depending on how it's mounted).
-if (SERVER_MODE) {
-  fetch("/api/prediction/data")
+// --- Date select: the daily scheduler pre-generates a handful of dated
+// CSVs (today, +1, +2, +7, or a full bootstrap week on first run). Populate
+// the dropdown from those instead of always loading one fixed file.
+const dateSelect = document.getElementById("date-select");
+
+function loadByDate(dateStr) {
+  const url = dateStr ? `/api/prediction/data?date=${encodeURIComponent(dateStr)}` : "/api/prediction/data";
+  return fetch(url)
     .then((r) => (r.ok ? r.text() : Promise.reject()))
-    .then((text) => renderRows(parseCSV(text)))
-    .catch(() => {});
+    .then((text) => renderRows(parseCSV(text)));
 }
 
-// --- Forecast / regenerate ---
+function loadAvailableDates() {
+  return fetch("/api/prediction/dates")
+    .then((r) => (r.ok ? r.json() : []))
+    .then((rows) => {
+      dateSelect.innerHTML = "";
+      if (!rows.length) {
+        dateSelect.innerHTML = '<option value="">No dated forecasts yet</option>';
+        return null;
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      rows.forEach((row) => {
+        const opt = document.createElement("option");
+        opt.value = row.target_date;
+        const flag = row.max_risk_score_raw != null && row.max_risk_score_raw > 0.9 ? " ⚠" : "";
+        opt.textContent = `${row.target_date} (run ${row.run_date})${flag}`;
+        dateSelect.appendChild(opt);
+      });
+      const preferred = rows.find((r) => r.target_date === today) || rows[0];
+      dateSelect.value = preferred.target_date;
+      return preferred.target_date;
+    })
+    .catch(() => null);
+}
+
+dateSelect.addEventListener("change", () => {
+  if (dateSelect.value) loadByDate(dateSelect.value);
+});
+
+// Auto-load when served by the Flask app (same-origin API route, not the
+// raw ../data/... relative path a bare static file would need).
+if (SERVER_MODE) {
+  loadAvailableDates().then((preferredDate) => {
+    if (preferredDate) loadByDate(preferredDate);
+    else loadByDate(null); // legacy fallback to the fixed risk_map.csv
+  });
+}
+
+// --- Forecast / regenerate (manual fallback to the daily scheduler) ---
 const forecastDateInput = document.getElementById("forecast-date");
 const regenerateBtn = document.getElementById("regenerate-btn");
 const regenerateStatus = document.getElementById("regenerate-status");
@@ -420,8 +487,9 @@ regenerateBtn.addEventListener("click", async () => {
       regenerateStatus.textContent = "Failed: " + (body.error || resp.statusText);
     } else {
       regenerateStatus.textContent = `Done — ${body.rows} cells for ${body.date}.`;
-      const csvResp = await fetch("/api/prediction/data");
-      if (csvResp.ok) renderRows(parseCSV(await csvResp.text()));
+      await loadAvailableDates();
+      dateSelect.value = body.date;
+      await loadByDate(body.date);
     }
   } catch (err) {
     regenerateStatus.textContent = "Request failed: " + err.message;

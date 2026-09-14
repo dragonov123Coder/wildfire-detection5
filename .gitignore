@@ -2,8 +2,7 @@ captures/
 saved-images/
 __pycache__/
 logs/
+instance/
 
 *.pkl
 *fires1.csv
-
-prediction/data/input/firms/

@@ -1,0 +1,8 @@
+flask
+opencv-python
+numpy
+ultralytics
+apscheduler
+win11toast
+pyserial
+pynmea2

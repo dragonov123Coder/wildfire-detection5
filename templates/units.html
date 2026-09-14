@@ -1,0 +1,163 @@
+{% import '_icons.html' as icons %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Manager</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <style>
+        body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 26px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .title-group { display: flex; align-items: center; gap: 12px; }
+        .title-group .icon { color: var(--accent-2); }
+        h1 { font-size: 1.25rem; margin: 0; }
+        .home-link { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
+        .home-link:hover { color: var(--text-primary); }
+
+        main { flex: 1; min-height: 0; overflow-y: auto; padding: 22px 26px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .unit-card {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .unit-card.add-card {
+            border-style: dashed;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            min-height: 140px;
+            gap: 8px;
+        }
+        .unit-card.add-card:hover { border-color: var(--accent-2); color: var(--accent-2); }
+
+        .unit-head { display: flex; align-items: center; justify-content: space-between; }
+        .unit-name { font-weight: 600; font-size: 1rem; }
+        .unit-id { color: var(--text-muted); font-size: 0.78rem; font-family: ui-monospace, monospace; }
+
+        .status-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-secondary); }
+        .meta-row { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-secondary); }
+        .meta-row .icon { color: var(--text-muted); }
+
+        .unit-card .btn { align-self: flex-start; margin-top: 4px; }
+
+        .empty-hint { color: var(--text-muted); font-size: 0.9rem; padding: 30px 0; text-align: center; }
+
+        /* --- Add unit modal --- */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 50;
+        }
+        .overlay[hidden] { display: none; }
+        .modal {
+            width: 380px;
+            max-width: calc(100vw - 40px);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .modal h2 { margin: 0; font-size: 1.05rem; }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+        .field input {
+            padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--surface-2); color: var(--text-primary); font-size: 13.5px; font-family: inherit;
+        }
+        .field-row { display: flex; gap: 10px; }
+        .field-row .field { flex: 1; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+        .modal-error { color: var(--danger); font-size: 0.82rem; min-height: 1em; }
+
+        .config-box {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: ui-monospace, monospace;
+            font-size: 11.5px;
+            max-height: 220px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title-group">
+            {{ icons.grid(24) }}
+            <h1>Unit Manager</h1>
+        </div>
+        <div style="display:flex; align-items:center; gap:18px;">
+            <a class="home-link" href="/">{{ icons.arrow_left(14) }} Home</a>
+            <button class="btn btn-primary" id="add-unit-btn">{{ icons.plus(16) }} Add Unit</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="grid" id="unit-grid"></div>
+        <div class="empty-hint" id="empty-hint" hidden>No units yet. Deploy one from the prediction map, or click "Add Unit".</div>
+    </main>
+
+    <div class="overlay" id="overlay" hidden>
+        <div class="modal card fade-rise">
+            <h2 id="modal-title">Deploy a new unit</h2>
+
+            <div id="form-step">
+                <div class="field">
+                    <label>Name (optional)</label>
+                    <input type="text" id="f-name" placeholder="e.g. Ridge Lookout">
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Latitude</label>
+                        <input type="number" step="any" id="f-lat">
+                    </div>
+                    <div class="field">
+                        <label>Longitude</label>
+                        <input type="number" step="any" id="f-lon">
+                    </div>
+                </div>
+                <div class="modal-error" id="form-error"></div>
+                <div class="modal-actions">
+                    <button class="btn" id="cancel-btn">Cancel</button>
+                    <button class="btn btn-primary" id="submit-btn">Deploy</button>
+                </div>
+            </div>
+
+            <div id="result-step" hidden>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 8px;">
+                    Unit registered. Copy this config onto the physical Raspberry Pi's <code>config.json</code>:
+                </p>
+                <div class="config-box" id="config-output"></div>
+                <div class="modal-actions">
+                    <button class="btn" id="copy-btn">{{ icons.copy_icon(14) }} Copy</button>
+                    <button class="btn btn-primary" id="done-btn">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/units.js"></script>
+</body>
+</html>
