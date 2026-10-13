@@ -107,6 +107,13 @@ def get_unit(unit_id: str):
     return dict(row) if row else None
 
 
+def delete_unit(unit_id: str):
+    conn = get_connection()
+    with _WRITE_LOCK:
+        conn.execute("DELETE FROM units WHERE unit_id = ?", (unit_id,))
+        conn.commit()
+
+
 def touch_unit_last_seen(unit_id: str):
     conn = get_connection()
     with _WRITE_LOCK:

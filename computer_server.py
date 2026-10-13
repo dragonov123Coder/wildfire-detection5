@@ -92,6 +92,7 @@ class UnitState:
         self.confidence = 0.0
         self.breakdown = {}
         self.connected = False
+        self.removed = False
         self.last_seen_monotonic = 0.0
         self.last_periodic_save = 0.0
 
@@ -357,7 +358,7 @@ class DataReceiver:
 
             logger.info(f"Unit {unit_id} connected from {addr}")
 
-            while self.running:
+            while self.running and not state.removed:
                 packet = self._receive_packet(client_socket)
                 if packet is None:
                     logger.warning(f"Unit {unit_id}: packet receive failed, disconnecting...")
@@ -398,6 +399,16 @@ class DataReceiver:
     def get_unit_ids(self):
         with self.units_lock:
             return list(self.units.keys())
+
+    def remove_unit(self, unit_id):
+        """Drop a unit's in-memory state; its connection thread (if any)
+        notices `removed` on its next packet and disconnects."""
+        with self.units_lock:
+            state = self.units.pop(unit_id, None)
+        if state:
+            with state.lock:
+                state.removed = True
+                state.connected = False
 
     def _receive_packet(self, sock):
         """Receive a single data packet from the given socket.
@@ -615,6 +626,15 @@ class WildfireServer:
             unit['connected'] = bool(state and state.connected)
             unit['config_snippet'] = self._build_config_snippet(unit_id)
             return jsonify(unit)
+
+        @self.app.route('/api/units/<unit_id>', methods=['DELETE'])
+        def api_units_delete(unit_id):
+            if db.get_unit(unit_id) is None:
+                return jsonify({'error': 'not found'}), 404
+            self.receiver.remove_unit(unit_id)
+            db.delete_unit(unit_id)
+            logger.info(f"Deleted unit {unit_id}")
+            return jsonify({'ok': True})
 
         @self.app.route('/api/units/<unit_id>/images')
         def api_unit_images(unit_id):

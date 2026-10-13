@@ -46,31 +46,121 @@
     return `${Number(unit.lat).toFixed(3)}, ${Number(unit.lon).toFixed(3)}`;
   }
 
-  function renderUnits(units) {
-    grid.innerHTML = '';
-    emptyHint.hidden = units.length > 0;
-    units.forEach((unit) => {
-      const card = document.createElement('div');
-      card.className = 'unit-card card fade-rise';
-      card.innerHTML = `
-        <div class="unit-head">
-          <div>
-            <div class="unit-name">${escapeHtml(unit.name)}</div>
-            <div class="unit-id">${escapeHtml(unit.unit_id)}</div>
-          </div>
+  // Cards are created once (playing the entrance animation once) and then
+  // updated in place on every poll, so the list doesn't flicker or re-animate.
+  const cards = new Map(); // unit_id -> { el, nameEl, statusEl, metaEl, deleteBtn }
+
+  function createCard(unit) {
+    const el = document.createElement('div');
+    el.className = 'unit-card card fade-rise';
+    el.innerHTML = `
+      <div class="unit-head">
+        <div>
+          <div class="unit-name"></div>
+          <div class="unit-id">${escapeHtml(unit.unit_id)}</div>
         </div>
-        <div class="status-row"><span class="status-dot ${statusClass(unit)}"></span>${statusLabel(unit)} &middot; last seen ${timeAgo(unit.last_seen)}</div>
-        <div class="meta-row">${locationText(unit)}</div>
+      </div>
+      <div class="status-row"></div>
+      <div class="meta-row"></div>
+      <div class="card-actions">
         <a class="btn" href="/units/${encodeURIComponent(unit.unit_id)}">Dashboard</a>
-      `;
-      grid.appendChild(card);
+        <button class="btn btn-danger delete-btn" type="button" data-unit-id="${escapeHtml(unit.unit_id)}" title="Delete unit">${window.TRASH_ICON || ''} Delete</button>
+      </div>
+    `;
+    return {
+      el,
+      nameEl: el.querySelector('.unit-name'),
+      statusEl: el.querySelector('.status-row'),
+      metaEl: el.querySelector('.meta-row'),
+      deleteBtn: el.querySelector('.delete-btn'),
+      lastStatus: null,
+    };
+  }
+
+  function updateCard(card, unit) {
+    card.nameEl.textContent = unit.name;
+    card.deleteBtn.dataset.unitName = unit.name;
+    const statusHtml = `<span class="status-dot ${statusClass(unit)}"></span>${statusLabel(unit)} &middot; last seen ${timeAgo(unit.last_seen)}`;
+    if (statusHtml !== card.lastStatus) {
+      card.statusEl.innerHTML = statusHtml;
+      card.lastStatus = statusHtml;
+    }
+    card.metaEl.textContent = locationText(unit);
+  }
+
+  function renderUnits(units) {
+    emptyHint.hidden = units.length > 0;
+
+    const seen = new Set(units.map((u) => u.unit_id));
+    for (const [unitId, card] of cards) {
+      if (!seen.has(unitId)) {
+        card.el.remove();
+        cards.delete(unitId);
+      }
+    }
+
+    units.forEach((unit, i) => {
+      let card = cards.get(unit.unit_id);
+      if (!card) {
+        card = createCard(unit);
+        cards.set(unit.unit_id, card);
+      }
+      updateCard(card, unit);
+      // Only touch the DOM when a card is not already at its slot; moving an
+      // element restarts its CSS animation.
+      if (grid.children[i] !== card.el) grid.insertBefore(card.el, grid.children[i] || null);
     });
   }
+
+  function swalTheme() {
+    const css = getComputedStyle(document.documentElement);
+    const v = (name) => css.getPropertyValue(name).trim();
+    return {
+      background: v('--surface-1'),
+      color: v('--text-primary'),
+      confirmButtonColor: v('--danger'),
+      cancelButtonColor: v('--text-muted'),
+    };
+  }
+
+  async function confirmAndDelete(unitId, unitName) {
+    const result = await Swal.fire({
+      ...swalTheme(),
+      title: 'Delete this unit?',
+      html: `<b>${escapeHtml(unitName)}</b> (<code>${escapeHtml(unitId)}</code>) will be removed from the Unit Manager.<br><br>` +
+            `If its Raspberry Pi is still configured with this id and connects again, it will re-register as a new unnamed unit.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      focusCancel: true,
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+      const resp = await fetch(`/api/units/${encodeURIComponent(unitId)}`, { method: 'DELETE' });
+      const body = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        await Swal.fire({ ...swalTheme(), title: 'Could not delete unit', text: body.error || resp.statusText, icon: 'error', confirmButtonColor: swalTheme().cancelButtonColor });
+        return;
+      }
+      await Swal.fire({ ...swalTheme(), title: 'Unit deleted', icon: 'success', timer: 1200, showConfirmButton: false });
+      refresh();
+    } catch (e) {
+      await Swal.fire({ ...swalTheme(), title: 'Request failed', text: e.message, icon: 'error', confirmButtonColor: swalTheme().cancelButtonColor });
+    }
+  }
+
+  // Cards are re-rendered every few seconds, so delegate from the grid.
+  grid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-btn');
+    if (btn) confirmAndDelete(btn.dataset.unitId, btn.dataset.unitName);
+  });
 
   function escapeHtml(s) {
     const div = document.createElement('div');
     div.textContent = s == null ? '' : String(s);
-    return div.innerHTML;
+    return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   async function refresh() {

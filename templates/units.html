@@ -21,8 +21,21 @@
         .title-group { display: flex; align-items: center; gap: 12px; }
         .title-group .icon { color: var(--accent-2); }
         h1 { font-size: 1.25rem; margin: 0; }
-        .home-link { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
-        .home-link:hover { color: var(--text-primary); }
+        .home-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--surface-2);
+            color: var(--text-secondary); text-decoration: none;
+            transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .home-btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+        .title-group .home-btn .icon { color: inherit; }
+        .title-group { margin-right: 4px; }
+
+        .card-actions { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .card-actions .btn { margin-top: 0; }
+        .btn-danger { color: var(--danger); }
+        .btn-danger:hover { border-color: var(--danger); }
 
         main { flex: 1; min-height: 0; overflow-y: auto; padding: 22px 26px; }
 
@@ -105,13 +118,11 @@
 <body>
     <header>
         <div class="title-group">
+            <a class="home-btn" href="/" title="Home" aria-label="Home">{{ icons.home(20) }}</a>
             {{ icons.grid(24) }}
             <h1>Unit Manager</h1>
         </div>
-        <div style="display:flex; align-items:center; gap:18px;">
-            <a class="home-link" href="/">{{ icons.arrow_left(14) }} Home</a>
-            <button class="btn btn-primary" id="add-unit-btn">{{ icons.plus(16) }} Add Unit</button>
-        </div>
+        <button class="btn btn-primary" id="add-unit-btn">{{ icons.plus(16) }} Add Unit</button>
     </header>
 
     <main>
@@ -158,6 +169,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>window.TRASH_ICON = {{ icons.trash(15)|tojson }};</script>
     <script src="/static/units.js"></script>
 </body>
 </html>
